@@ -10,11 +10,11 @@ pages_build_output_dir = ".vercel/output/static"
 # Database D1 "sofa-duy-ngoc" (CHƯA tạo — Sơn cần tạo trong Cloudflare
 # dashboard: Workers & Pages > D1 SQL Database > Create, đặt tên
 # "sofa-duy-ngoc", rồi dán database ID nhận được vào database_id bên
-# dưới, thay cho REPLACE_WITH_D1_DATABASE_ID).
+# dưới, thay cho c81fd249-6e73-485c-a8ad-90bc0ff71784).
 # Trong code, binding này xuất hiện dưới tên env.DB
 # (xem src/lib/db.ts). Nạp dữ liệu mẫu bằng file
 # database/d1/sofa-duy-ngoc-d1.sql trong D1 console của Cloudflare.
 [[d1_databases]]
 binding = "DB"
 database_name = "sofa-duy-ngoc"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "c81fd249-6e73-485c-a8ad-90bc0ff71784"
