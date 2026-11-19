@@ -16,9 +16,12 @@ type Product = (typeof PRODUCTS)[number];
 // nhập mới vào được (goToQuote chặn ở bước trước). Gửi đơn về
 // POST /api/quotes — đơn hiện trong mục Yêu cầu báo giá của admin
 // (/admin/bao-gia). Bước thanh toán là TẠM THỜI, chỉ để xem trước:
-// chưa xử lý thanh toán thật, chưa gọi API thanh toán, chưa tạo mã
-// QR; thông tin ngân hàng để "Đang cập nhật" vì chủ xưởng chưa gửi
-// số thật; mã khuyến mãi cũng chưa có hệ thống giảm giá thật.
+// chưa xử lý thanh toán thật, chưa gọi API thanh toán. Chuyển khoản
+// hiển thị mã VietQR thật của chủ xưởng (Vietcombank, ảnh
+// /images/qr-vietcombank.png): mã QR TĨNH — khách quét rồi tự nhập
+// số tiền trong app ngân hàng, không tự điền sẵn số tiền hay mã đơn
+// như trang VNPay động (muốn thế cần tài khoản merchant VNPay +
+// tích hợp API riêng); mã khuyến mãi cũng chưa có hệ thống giảm giá thật.
 type PayMethod = "bank" | "momo" | "vnpay" | "paypal";
 
 const PAY_METHODS: { id: PayMethod; label: string }[] = [
@@ -150,21 +153,46 @@ export default function OrderClient() {
     if (payMethod === "bank") {
       return (
         <div className="mt-4 rounded-xl bg-cream p-4">
-          <div className="flex justify-between gap-4 border-b border-coffee/10 py-2 text-sm">
-            <span className="font-bold text-coffee-deep">Ngân hàng</span>
-            <span className="text-coffee-deep/60">Đang cập nhật</span>
-          </div>
-          <div className="flex justify-between gap-4 border-b border-coffee/10 py-2 text-sm">
-            <span className="font-bold text-coffee-deep">Số tài khoản</span>
-            <span className="text-coffee-deep/60">Đang cập nhật</span>
-          </div>
-          <div className="flex justify-between gap-4 py-2 text-sm">
-            <span className="font-bold text-coffee-deep">Chủ tài khoản</span>
-            <span className="text-coffee-deep/60">Đang cập nhật</span>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+            <div className="min-w-0 flex-1">
+              <div className="flex justify-between gap-4 border-b border-coffee/10 py-2 text-sm">
+                <span className="font-bold text-coffee-deep">Ngân hàng</span>
+                <span className="text-right text-coffee-deep">
+                  Vietcombank — PGD Kiến An
+                </span>
+              </div>
+              <div className="flex justify-between gap-4 border-b border-coffee/10 py-2 text-sm">
+                <span className="font-bold text-coffee-deep">
+                  Số tài khoản
+                </span>
+                <span className="text-right font-bold text-coffee-deep">
+                  4943625922
+                </span>
+              </div>
+              <div className="flex justify-between gap-4 py-2 text-sm">
+                <span className="font-bold text-coffee-deep">
+                  Chủ tài khoản
+                </span>
+                <span className="text-right text-coffee-deep">
+                  PHAM THI THANH XUAN
+                </span>
+              </div>
+            </div>
+            <div className="shrink-0 text-center">
+              <img
+                src="/images/qr-vietcombank.png"
+                alt="Mã QR Vietcombank nhận tiền — PHAM THI THANH XUAN, 4943625922"
+                className="mx-auto w-[150px] rounded-lg border border-coffee/10 bg-white"
+              />
+              <p className="mt-2 text-xs font-bold text-coffee-deep">
+                Quét mã để thanh toán
+              </p>
+            </div>
           </div>
           <p className="mt-3 text-sm leading-relaxed text-coffee-deep/70">
             Quý khách vui lòng thanh toán trước ít nhất 30% giá trị đơn hàng
-            qua phương thức chuyển khoản. Xưởng sẽ liên hệ xác nhận sau khi
+            qua phương thức chuyển khoản. Quét mã QR bằng app ngân hàng rồi
+            nhập số tiền cần thanh toán. Xưởng sẽ liên hệ xác nhận sau khi
             nhận được đơn hàng.
           </p>
         </div>
