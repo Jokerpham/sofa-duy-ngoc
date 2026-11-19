@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import PasswordField from "@/components/PasswordField";
 import {
   changeCustomerPassword,
+  forgotCustomerPassword,
   getCustomerSession,
   loginCustomer,
   logoutCustomer,
@@ -29,12 +30,19 @@ const submitBtn =
 
 export default function TaiKhoanClient() {
   const [user, setUser] = useState<Customer | null>(null);
-  const [tab, setTab] = useState<"login" | "register">("login");
+  const [tab, setTab] = useState<"login" | "register" | "forgot">("login");
 
   // Đăng nhập
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+
+  // Quên mật khẩu
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotPassword, setForgotPassword] = useState("");
+  const [forgotConfirm, setForgotConfirm] = useState("");
+  const [forgotError, setForgotError] = useState("");
+  const [forgotSuccess, setForgotSuccess] = useState("");
 
   // Đăng ký
   const [name, setName] = useState("");
@@ -87,6 +95,26 @@ export default function TaiKhoanClient() {
     // thì tự đưa về đúng trang báo giá (mẫu đã điền sẵn), không có
     // thì ở lại trang tài khoản như bình thường.
     redirectAfterLogin();
+  }
+
+  async function handleForgotPassword(e: React.FormEvent) {
+    e.preventDefault();
+    const result = await forgotCustomerPassword(
+      forgotEmail,
+      forgotPassword,
+      forgotConfirm,
+    );
+    if (!result.ok) {
+      setForgotError(result.error ?? "Đặt lại mật khẩu không thành công.");
+      setForgotSuccess("");
+      return;
+    }
+    setForgotError("");
+    setForgotSuccess(
+      "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.",
+    );
+    setForgotPassword("");
+    setForgotConfirm("");
   }
 
   async function handleRegister(e: React.FormEvent) {
@@ -167,6 +195,11 @@ export default function TaiKhoanClient() {
     setLoginEmail("");
     setLoginPassword("");
     setLoginError("");
+    setForgotEmail("");
+    setForgotPassword("");
+    setForgotConfirm("");
+    setForgotError("");
+    setForgotSuccess("");
     setRegError("");
     setRegSuccess("");
     setEditError("");
@@ -365,6 +398,76 @@ export default function TaiKhoanClient() {
         ) : (
           <>
             {/* ---------- Chưa đăng nhập: 2 tab Đăng nhập / Đăng ký ---------- */}
+            {tab === "forgot" ? (
+              <form onSubmit={handleForgotPassword} className="space-y-4 pt-6">
+                <p className="text-base font-black text-[#241208]">Quên mật khẩu</p>
+                <p className="-mt-2 text-sm text-[#241208]/55">
+                  Nhập email đã đăng ký và mật khẩu mới của bạn.
+                </p>
+                <div>
+                  <label htmlFor="forgot-email" className={lightLabel}>
+                    Email
+                  </label>
+                  <input
+                    id="forgot-email"
+                    type="email"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    placeholder="Nhập email đã đăng ký"
+                    autoComplete="email"
+                    required
+                    className={lightInput}
+                  />
+                </div>
+                <PasswordField
+                  id="forgot-password"
+                  label="Mật khẩu mới"
+                  value={forgotPassword}
+                  onChange={setForgotPassword}
+                  placeholder="Nhập mật khẩu mới (ít nhất 6 ký tự)"
+                  autoComplete="new-password"
+                  variant="light"
+                />
+                <PasswordField
+                  id="forgot-confirm"
+                  label="Nhập lại mật khẩu mới"
+                  value={forgotConfirm}
+                  onChange={setForgotConfirm}
+                  placeholder="Nhập lại mật khẩu mới"
+                  autoComplete="new-password"
+                  variant="light"
+                />
+                {forgotError && (
+                  <p
+                    role="alert"
+                    className="rounded-lg bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
+                  >
+                    {forgotError}
+                  </p>
+                )}
+                {forgotSuccess && (
+                  <p
+                    role="status"
+                    className="rounded-lg bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700"
+                  >
+                    {forgotSuccess}
+                  </p>
+                )}
+                <button type="submit" className={submitBtn}>
+                  Đặt lại mật khẩu
+                </button>
+                <p className="text-center text-sm text-[#241208]/55">
+                  <button
+                    type="button"
+                    onClick={() => setTab("login")}
+                    className="font-bold text-[#6B3A2A] underline underline-offset-2 hover:text-[#241208]"
+                  >
+                    Quay lại đăng nhập
+                  </button>
+                </p>
+              </form>
+            ) : (
+              <>
             <div
               className="mt-5 grid grid-cols-2 border-b border-[#241208]/10"
               role="tablist"
@@ -432,6 +535,20 @@ export default function TaiKhoanClient() {
                     autoComplete="current-password"
                     variant="light"
                   />
+                  <p className="text-right">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setForgotEmail(loginEmail);
+                        setForgotError("");
+                        setForgotSuccess("");
+                        setTab("forgot");
+                      }}
+                      className="text-sm font-bold text-[#6B3A2A] underline underline-offset-2 hover:text-[#241208]"
+                    >
+                      Quên mật khẩu?
+                    </button>
+                  </p>
                   {loginError && (
                     <p
                       role="alert"
@@ -551,6 +668,8 @@ export default function TaiKhoanClient() {
                 </form>
               )}
             </div>
+              </>
+            )}
           </>
         )}
       </div>

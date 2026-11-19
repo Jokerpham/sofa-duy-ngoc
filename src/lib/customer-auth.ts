@@ -232,3 +232,41 @@ export async function changeCustomerPassword(
     };
   }
 }
+
+// Quên mật khẩu (khi chưa đăng nhập): đặt lại mật khẩu mới bằng email.
+// TẠM THỜI chưa gửi email xác minh (xem ghi chú ở
+// src/app/api/customers/forgot-password/route.ts).
+export async function forgotCustomerPassword(
+  email: string,
+  password: string,
+  confirm: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const clean = email.trim().toLowerCase();
+  if (!clean || !EMAIL_RE.test(clean)) {
+    return { ok: false, error: "Email không đúng định dạng. Hãy kiểm tra lại." };
+  }
+  if (password.length < 6) {
+    return { ok: false, error: "Mật khẩu mới phải có ít nhất 6 ký tự." };
+  }
+  if (password !== confirm) {
+    return { ok: false, error: "Mật khẩu mới nhập lại không khớp." };
+  }
+  try {
+    const data = await postJson<Record<string, never>>(
+      "/api/customers/forgot-password",
+      { email: clean, password, confirm },
+    );
+    if (!data.ok) {
+      return {
+        ok: false,
+        error: data.error ?? "Đặt lại mật khẩu không thành công.",
+      };
+    }
+    return { ok: true };
+  } catch {
+    return {
+      ok: false,
+      error: "Lỗi kết nối cơ sở dữ liệu. Hãy kiểm tra MySQL và file .env.",
+    };
+  }
+}
