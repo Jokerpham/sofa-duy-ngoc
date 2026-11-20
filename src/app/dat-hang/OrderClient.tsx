@@ -16,26 +16,37 @@ type Product = (typeof PRODUCTS)[number];
 // nhập mới vào được (goToQuote chặn ở bước trước). Gửi đơn về
 // POST /api/quotes — đơn hiện trong mục Yêu cầu báo giá của admin
 // (/admin/bao-gia). Bước thanh toán là TẠM THỜI, chỉ để xem trước:
-// chưa xử lý thanh toán thật, chưa gọi API thanh toán. Ô chuyển khoản
-// làm theo kiểu trang VNPay (đã duyệt theo ảnh ghép 2026-11-20):
-// cột trái là "Thông tin đơn hàng" — dòng đầu là tên mẫu đã chọn
-// (số tiền đi theo đúng mẫu đó), số tiền thanh toán = cọc 50%,
-// giá trị đơn, phí 0đ — KHÔNG có dòng "Nhà cung cấp", và chưa có
-// "Mã đơn hàng" vì đơn chỉ có mã sau khi khách bấm ĐẶT HÀNG; mã QR
-// xanh lá nằm RIÊNG ở cột phải (không chung hàng với đoạn văn bên
-// trái). Ảnh /images/qr-vietcombank.png là mã QR SẠCH chỉ còn ô mã
-// (cắt từ thẻ VietQR thật của chủ xưởng, bỏ phần thẻ xung quanh),
-// đã kiểm tra giải mã được: Vietcombank BIN 970436, STK
-// 4943625922 — quét là chuyển tiền được. Nút "Hủy thanh toán" quay
-// lại trang sản phẩm.
-// Mã QR TĨNH: khách quét rồi tự nhập số tiền trong app ngân hàng;
-// các con số hiện trên trang đều tính từ giá thật của mẫu đã chọn,
-// không điền bừa; mã khuyến mãi cũng chưa có hệ thống giảm giá thật.
-type PayMethod = "bank" | "momo" | "vnpay" | "paypal";
+// chưa xử lý thanh toán thật, chưa gọi API thanh toán. Các phương
+// thức để RIÊNG từng mục (không gộp MoMo/ZaloPay): ngân hàng, MoMo,
+// ZaloPay, VNPay, PayPal. Khung thanh toán làm theo kiểu trang
+// VNPay (đã duyệt theo ảnh ghép 2026-11-20): cột trái là "Thông tin
+// đơn hàng" — dòng đầu là tên mẫu đã chọn (số tiền đi theo đúng mẫu
+// đó), số tiền thanh toán = cọc 50%, giá trị đơn, phí 0đ — KHÔNG có
+// dòng "Nhà cung cấp", và chưa có "Mã đơn hàng" vì đơn chỉ có mã sau
+// khi khách bấm ĐẶT HÀNG; mã QR nằm RIÊNG ở cột phải (không chung
+// hàng với đoạn văn bên trái). Nút "Hủy thanh toán" quay lại trang
+// sản phẩm.
+// - Ngân hàng: /images/qr-vietcombank.png là mã QR SẠCH chỉ còn ô
+//   mã (cắt từ thẻ VietQR thật của chủ xưởng), đã kiểm tra giải mã
+//   được: Vietcombank BIN 970436, STK 4943625922.
+// - MoMo: /images/qr-momo.png là mã QR MoMo SẠCH chỉ còn ô mã (cắt
+//   từ thẻ MoMo thật), đã kiểm tra giải mã được: MoMo BIN 971025,
+//   0943625922 — quét bằng MoMo, ZaloPay hoặc app ngân hàng đều
+//   được (cùng chuẩn VietQR).
+// - ZaloPay: /images/zalo-qr.png là thẻ Danh thiếp Zalo của Phạm
+//   Thanh Xuân (zaloapp.com/qr/p/1smblm0vd2cny) — quét là MỞ ĐOẠN
+//   CHAT Zalo, KHÔNG phải mã thanh toán trực tiếp; khách quét để
+//   nhắn Zalo, xưởng hướng dẫn thanh toán trong đoạn chat.
+// - VNPay / PayPal: chưa có mã QR thật nên vẫn hiện ghi chú chờ bật sau.
+// Mã QR TĨNH: khách quét rồi tự nhập số tiền trong app; các con số
+// hiện trên trang đều tính từ giá thật của mẫu đã chọn, không điền
+// bừa; mã khuyến mãi cũng chưa có hệ thống giảm giá thật.
+type PayMethod = "bank" | "momo" | "zalopay" | "vnpay" | "paypal";
 
 const PAY_METHODS: { id: PayMethod; label: string }[] = [
   { id: "bank", label: "Chuyển khoản qua ngân hàng" },
-  { id: "momo", label: "MoMo / ZaloPay" },
+  { id: "momo", label: "MoMo" },
+  { id: "zalopay", label: "ZaloPay" },
   { id: "vnpay", label: "VNPay" },
   { id: "paypal", label: "PayPal" },
 ];
@@ -158,95 +169,146 @@ export default function OrderClient() {
 
   // Chi tiết của phương thức thanh toán đã chọn (dùng chung cho cả
   // lúc chọn trước khi đặt hàng và lúc xem lại sau khi đặt xong).
-  // Ô chuyển khoản làm theo kiểu trang VNPay: bên trái là
-  // "Thông tin đơn hàng" (số tiền thanh toán = cọc 50%, giá trị đơn,
-  // phí 0đ — KHÔNG có dòng "Nhà cung cấp", và chưa có "Mã đơn hàng"
-  // vì đơn chỉ có mã sau khi khách bấm ĐẶT HÀNG); mã QR xanh lá nằm
-  // RIÊNG ở cột phải (không chung hàng với đoạn văn bên trái).
-  // Thẻ VietQR thật của chủ xưởng, đã kiểm tra giải mã được:
-  // Vietcombank (BIN 970436), STK 4943625922 — khách quét là
-  // chuyển tiền được. Mã QR TĨNH: khách quét rồi tự nhập số tiền
-  // trong app ngân hàng; các con số hiện trên trang đều tính từ giá
-  // thật của mẫu đã chọn, không điền bừa.
+  // Các ô làm theo kiểu trang VNPay: bên trái là "Thông tin đơn
+  // hàng" (số tiền thanh toán = cọc 50%, giá trị đơn, phí 0đ —
+  // KHÔNG có dòng "Nhà cung cấp", và chưa có "Mã đơn hàng" vì đơn
+  // chỉ có mã sau khi khách bấm ĐẶT HÀNG); mã QR nằm RIÊNG ở cột
+  // phải (không chung hàng với đoạn văn bên trái).
+  // - Ngân hàng: thẻ VietQR thật của chủ xưởng, đã kiểm tra giải mã
+  //   được: Vietcombank (BIN 970436), STK 4943625922.
+  // - MoMo: mã QR MoMo thật, đã kiểm tra giải mã được: MoMo (BIN
+  //   971025), 0943625922 — quét bằng MoMo, ZaloPay hoặc app ngân
+  //   hàng đều được (cùng chuẩn VietQR).
+  // - ZaloPay: thẻ Danh thiếp Zalo — quét là MỞ ĐOẠN CHAT Zalo,
+  //   không phải mã thanh toán trực tiếp; khách quét để nhắn Zalo,
+  //   xưởng hướng dẫn thanh toán trong đoạn chat.
+  // Mã QR TĨNH: khách quét rồi tự nhập số tiền trong app; các con số
+  // hiện trên trang đều tính từ giá thật của mẫu đã chọn, không điền bừa.
   function renderPayDetails() {
-    if (payMethod === "bank") {
-      const deposit =
-        totalPrice != null ? Math.round(totalPrice * 0.5) : null;
+    // VNPay / PayPal chưa có mã QR thật nên vẫn hiện ghi chú chờ bật sau.
+    if (payMethod === "vnpay" || payMethod === "paypal") {
+      const label =
+        PAY_METHODS.find((m) => m.id === payMethod)?.label ?? "";
       return (
-        <div className="rounded-xl bg-cream p-4">
-          <p className="text-base font-bold text-coffee-deep">
-            Thông tin đơn hàng
-          </p>
-          <div className="mt-3">
-            <p className="text-sm text-coffee-deep/60">Sản phẩm</p>
-            <p className="font-bold text-coffee-deep">
-              {product?.name ?? "—"}
-            </p>
-          </div>
-          <div className="mt-3">
-            <p className="text-sm text-coffee-deep/60">
-              Số tiền thanh toán (ít nhất 50%)
-            </p>
-            <p className="text-2xl font-bold text-[#006C35]">
-              {deposit != null ? formatPrice(deposit) : "—"}
-            </p>
-          </div>
-          <div className="mt-4">
-            <p className="text-sm text-coffee-deep/60">
-              Giá trị đơn hàng
-            </p>
-            <p className="font-bold text-coffee-deep">
-              {totalPrice != null ? formatPrice(totalPrice) : "—"}
-            </p>
-          </div>
-          <div className="mt-4">
-            <p className="text-sm text-coffee-deep/60">Phí giao dịch</p>
-            <p className="font-bold text-coffee-deep">0₫</p>
-          </div>
-          <p className="mt-4 border-t border-coffee/10 pt-3 text-xs leading-relaxed text-coffee-deep/60">
-            Chuyển khoản đến: Vietcombank — PGD Kiến An • STK{" "}
-            <span className="font-bold text-coffee-deep">4943625922</span>{" "}
-            • PHAM THI THANH XUAN
-          </p>
-          <p className="mt-4 text-sm leading-relaxed text-coffee-deep/70">
-            Quý khách vui lòng thanh toán trước ít nhất 50% giá trị đơn hàng
-            qua phương thức chuyển khoản. Vui lòng ghi tên và số điện thoại
-            vào nội dung chuyển khoản để xưởng đối soát. Xưởng sẽ liên hệ
-            xác nhận sau khi nhận được đơn hàng.
-          </p>
-        </div>
+        <p className="rounded-xl bg-cream px-4 py-3 text-sm leading-relaxed text-coffee-deep/70">
+          Thanh toán online qua {label} sẽ được bật sau — xưởng sẽ liên hệ
+          hướng dẫn bạn thanh toán.
+        </p>
       );
     }
-    const label =
-      PAY_METHODS.find((m) => m.id === payMethod)?.label ?? "";
+    // Ngân hàng / MoMo / ZaloPay: cùng một khung "Thông tin đơn hàng"
+    // (sản phẩm đã chọn, cọc 50%, giá trị đơn, phí 0đ), chỉ khác dòng
+    // thanh toán ở cuối.
+    const deposit =
+      totalPrice != null ? Math.round(totalPrice * 0.5) : null;
+    const payLine =
+      payMethod === "bank" ? (
+        <>
+          Chuyển khoản đến: Vietcombank — PGD Kiến An • STK{" "}
+          <span className="font-bold text-coffee-deep">4943625922</span>{" "}
+          • PHAM THI THANH XUAN
+        </>
+      ) : payMethod === "momo" ? (
+        <>
+          Thanh toán đến: MoMo •{" "}
+          <span className="font-bold text-coffee-deep">0943625922</span>{" "}
+          • PHAM THI THANH XUAN
+        </>
+      ) : (
+        <>
+          Quét mã Zalo bên phải để nhắn với xưởng — xưởng sẽ hướng dẫn
+          bạn thanh toán.
+        </>
+      );
     return (
-      <p className="rounded-xl bg-cream px-4 py-3 text-sm leading-relaxed text-coffee-deep/70">
-        Thanh toán online qua {label} sẽ được bật sau — xưởng sẽ liên hệ
-        hướng dẫn bạn thanh toán.
-      </p>
+      <div className="rounded-xl bg-cream p-4">
+        <p className="text-base font-bold text-coffee-deep">
+          Thông tin đơn hàng
+        </p>
+        <div className="mt-3">
+          <p className="text-sm text-coffee-deep/60">Sản phẩm</p>
+          <p className="font-bold text-coffee-deep">
+            {product?.name ?? "—"}
+          </p>
+        </div>
+        <div className="mt-3">
+          <p className="text-sm text-coffee-deep/60">
+            Số tiền thanh toán (ít nhất 50%)
+          </p>
+          <p className="text-2xl font-bold text-[#006C35]">
+            {deposit != null ? formatPrice(deposit) : "—"}
+          </p>
+        </div>
+        <div className="mt-4">
+          <p className="text-sm text-coffee-deep/60">
+            Giá trị đơn hàng
+          </p>
+          <p className="font-bold text-coffee-deep">
+            {totalPrice != null ? formatPrice(totalPrice) : "—"}
+          </p>
+        </div>
+        <div className="mt-4">
+          <p className="text-sm text-coffee-deep/60">Phí giao dịch</p>
+          <p className="font-bold text-coffee-deep">0₫</p>
+        </div>
+        <p className="mt-4 border-t border-coffee/10 pt-3 text-xs leading-relaxed text-coffee-deep/60">
+          {payLine}
+        </p>
+        <p className="mt-4 text-sm leading-relaxed text-coffee-deep/70">
+          {payMethod === "zalopay"
+            ? "Quý khách vui lòng thanh toán trước ít nhất 50% giá trị đơn hàng. Quét mã Zalo bên phải để nhắn với xưởng, xưởng sẽ hướng dẫn thanh toán và xác nhận đơn hàng."
+            : "Quý khách vui lòng thanh toán trước ít nhất 50% giá trị đơn hàng qua phương thức chuyển khoản. Vui lòng ghi tên và số điện thoại vào nội dung chuyển khoản để xưởng đối soát. Xưởng sẽ liên hệ xác nhận sau khi nhận được đơn hàng."}
+        </p>
+      </div>
     );
   }
 
-  // Khung mã QR chuyển khoản — nằm RIÊNG ở cột phải (kiểu trang
-  // VNPay), không chung hàng với đoạn văn bên trái. Chỉ hiện khi
-  // chọn chuyển khoản qua ngân hàng.
+  // Khung mã QR — nằm RIÊNG ở cột phải (kiểu trang VNPay), không
+  // chung hàng với đoạn văn bên trái. Hiện khi chọn ngân hàng, MoMo
+  // hoặc ZaloPay; VNPay / PayPal chưa có mã QR nên không hiện.
   function renderQrPanel() {
-    if (payMethod !== "bank") return null;
+    if (payMethod === "vnpay" || payMethod === "paypal") return null;
+    // MoMo: mã QR VietQR thật (MoMo BIN 971025, 0943625922), đã kiểm
+    // tra giải mã được — khách quét bằng MoMo, ZaloPay hoặc app ngân
+    // hàng rồi tự nhập số tiền (mã tĩnh, không có sẵn số tiền).
+    // ZaloPay: thẻ Danh thiếp Zalo của Phạm Thanh Xuân — quét là MỞ
+    // ĐOẠN CHAT Zalo, không phải mã thanh toán trực tiếp; khách quét
+    // để nhắn Zalo, xưởng hướng dẫn thanh toán trong đoạn chat.
+    const isZalo = payMethod === "zalopay";
+    const qrSrc = isZalo
+      ? "/images/zalo-qr.png"
+      : payMethod === "momo"
+        ? "/images/qr-momo.png"
+        : "/images/qr-vietcombank.png";
+    const qrAlt = isZalo
+      ? "Mã QR Zalo — Phạm Thanh Xuân, quét để nhắn Zalo với xưởng"
+      : payMethod === "momo"
+        ? "Mã QR MoMo nhận tiền — PHAM THI THANH XUAN, 0943625922"
+        : "Mã QR Vietcombank nhận tiền — PHAM THI THANH XUAN, 4943625922";
+    const title = isZalo
+      ? "Quét mã để nhắn Zalo"
+      : payMethod === "momo"
+        ? "Quét mã qua MoMo"
+        : "Quét mã qua App Ngân hàng/ Ví điện tử";
+    const guide = isZalo
+      ? "Nhắn Zalo để được hướng dẫn thanh toán"
+      : "Hướng dẫn thanh toán";
+    const hint = isZalo
+      ? "Mở app Zalo, quét mã để nhắn với xưởng."
+      : "Mở app MoMo, ZaloPay hoặc ngân hàng, chọn quét mã QR rồi nhập số tiền.";
     return (
       <div className="rounded-2xl border border-[#006C35]/25 bg-[#EAF6EC] p-5 text-center shadow-sm">
-        <p className="text-base font-bold text-[#006C35]">
-          Quét mã qua App Ngân hàng/ Ví điện tử
-        </p>
+        <p className="text-base font-bold text-[#006C35]">{title}</p>
         <p className="mt-2 text-sm text-[#009444]">
           <span className="mr-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#009444] text-[10px] font-bold text-white">
             i
           </span>
-          Hướng dẫn thanh toán
+          {guide}
         </p>
         <div className="relative mx-auto mt-4 w-fit">
           <img
-            src="/images/qr-vietcombank.png"
-            alt="Mã QR Vietcombank nhận tiền — PHAM THI THANH XUAN, 4943625922"
+            src={qrSrc}
+            alt={qrAlt}
             className="w-[250px] rounded-lg"
           />
           <span
@@ -266,9 +328,11 @@ export default function OrderClient() {
             className="absolute -bottom-2 -right-2 h-6 w-6 rounded-br-md border-b-4 border-r-4 border-[#009444]"
           />
         </div>
-        <p className="mt-4 text-sm font-bold italic text-[#006C35]">
-          Scan to Pay
-        </p>
+        {isZalo ? null : (
+          <p className="mt-4 text-sm font-bold italic text-[#006C35]">
+            Scan to Pay
+          </p>
+        )}
         <Link
           href="/san-pham"
           className="mx-auto mt-4 block w-[220px] rounded-lg bg-[#F0F0F0] px-4 py-3 text-sm text-coffee-deep transition hover:bg-[#E5E5E5]"
@@ -276,7 +340,7 @@ export default function OrderClient() {
           Hủy thanh toán
         </Link>
         <p className="mt-4 text-xs leading-relaxed text-coffee-deep/60">
-          Mở app ngân hàng, chọn quét mã QR rồi nhập số tiền.
+          {hint}
         </p>
       </div>
     );
@@ -376,7 +440,9 @@ export default function OrderClient() {
               </p>
               <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-start">
                 <div className="min-w-0 flex-1">{renderPayDetails()}</div>
-                {payMethod === "bank" ? (
+                {payMethod === "bank" ||
+                payMethod === "momo" ||
+                payMethod === "zalopay" ? (
                   <div className="w-full shrink-0 sm:w-[250px]">
                     {renderQrPanel()}
                   </div>
@@ -693,9 +759,9 @@ export default function OrderClient() {
                     )}
                   </div>
 
-                  {/* Mã QR chuyển khoản — riêng ở cột phải (kiểu trang
-                      VNPay), chỉ hiện khi chọn chuyển khoản qua ngân
-                      hàng. Không chung hàng với đoạn văn bên trái. */}
+                  {/* Mã QR — riêng ở cột phải (kiểu trang VNPay),
+                      chỉ hiện khi chọn ngân hàng, MoMo hoặc ZaloPay.
+                      Không chung hàng với đoạn văn bên trái. */}
                   {renderQrPanel()}
 
                   {/* Tóm tắt đơn hàng */}
