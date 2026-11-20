@@ -17,12 +17,20 @@ type Product = (typeof PRODUCTS)[number];
 // POST /api/quotes — đơn hiện trong mục Yêu cầu báo giá của admin
 // (/admin/bao-gia). Bước thanh toán là TẠM THỜI, chỉ để xem trước:
 // chưa xử lý thanh toán thật, chưa gọi API thanh toán. Ô chuyển khoản
-// làm theo kiểu trang VNPay: trái là "Thông tin đơn hàng", phải riêng
-// là khung mã QR xanh lá (thẻ VietQR thật của chủ xưởng, ảnh
-// /images/qr-vietcombank.png, đã kiểm tra giải mã được: Vietcombank
-// BIN 970436, STK 4943625922 — quét là chuyển tiền được). Mã QR TĨNH:
-// khách quét rồi tự nhập số tiền trong app ngân hàng; mã khuyến mãi
-// cũng chưa có hệ thống giảm giá thật.
+// làm theo kiểu trang VNPay (đã duyệt theo ảnh ghép 2026-11-20):
+// cột trái là "Thông tin đơn hàng" — dòng đầu là tên mẫu đã chọn
+// (số tiền đi theo đúng mẫu đó), số tiền thanh toán = cọc 50%,
+// giá trị đơn, phí 0đ — KHÔNG có dòng "Nhà cung cấp", và chưa có
+// "Mã đơn hàng" vì đơn chỉ có mã sau khi khách bấm ĐẶT HÀNG; mã QR
+// xanh lá nằm RIÊNG ở cột phải (không chung hàng với đoạn văn bên
+// trái). Ảnh /images/qr-vietcombank.png là mã QR SẠCH chỉ còn ô mã
+// (cắt từ thẻ VietQR thật của chủ xưởng, bỏ phần thẻ xung quanh),
+// đã kiểm tra giải mã được: Vietcombank BIN 970436, STK
+// 4943625922 — quét là chuyển tiền được. Nút "Hủy thanh toán" quay
+// lại trang sản phẩm.
+// Mã QR TĨNH: khách quét rồi tự nhập số tiền trong app ngân hàng;
+// các con số hiện trên trang đều tính từ giá thật của mẫu đã chọn,
+// không điền bừa; mã khuyến mãi cũng chưa có hệ thống giảm giá thật.
 type PayMethod = "bank" | "momo" | "vnpay" | "paypal";
 
 const PAY_METHODS: { id: PayMethod; label: string }[] = [
@@ -150,90 +158,58 @@ export default function OrderClient() {
 
   // Chi tiết của phương thức thanh toán đã chọn (dùng chung cho cả
   // lúc chọn trước khi đặt hàng và lúc xem lại sau khi đặt xong).
-  // Ô chuyển khoản làm theo kiểu trang thanh toán VNPay: bên trái là
-  // "Thông tin đơn hàng" (số tiền thanh toán = cọc 30%, giá trị đơn,
+  // Ô chuyển khoản làm theo kiểu trang VNPay: bên trái là
+  // "Thông tin đơn hàng" (số tiền thanh toán = cọc 50%, giá trị đơn,
   // phí 0đ — KHÔNG có dòng "Nhà cung cấp", và chưa có "Mã đơn hàng"
-  // vì đơn chỉ có mã sau khi khách bấm ĐẶT HÀNG), bên phải riêng là
-  // khung mã QR xanh lá (thẻ VietQR thật của chủ xưởng). Mã QR đã
-  // kiểm tra giải mã được: Vietcombank (BIN 970436), STK 4943625922
-  // — khách quét là chuyển tiền được. Mã QR TĨNH: khách quét rồi tự
-  // nhập số tiền trong app ngân hàng, không tự điền sẵn số tiền hay
-  // mã đơn như trang VNPay động (muốn thế cần tài khoản merchant
-  // VNPay + tích hợp API riêng).
+  // vì đơn chỉ có mã sau khi khách bấm ĐẶT HÀNG); mã QR xanh lá nằm
+  // RIÊNG ở cột phải (không chung hàng với đoạn văn bên trái).
+  // Thẻ VietQR thật của chủ xưởng, đã kiểm tra giải mã được:
+  // Vietcombank (BIN 970436), STK 4943625922 — khách quét là
+  // chuyển tiền được. Mã QR TĨNH: khách quét rồi tự nhập số tiền
+  // trong app ngân hàng; các con số hiện trên trang đều tính từ giá
+  // thật của mẫu đã chọn, không điền bừa.
   function renderPayDetails() {
     if (payMethod === "bank") {
       const deposit =
-        totalPrice != null ? Math.round(totalPrice * 0.3) : null;
+        totalPrice != null ? Math.round(totalPrice * 0.5) : null;
       return (
-        <div className="mt-4 rounded-xl bg-cream p-4">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-            <div className="min-w-0 flex-1">
-              <p className="text-base font-bold text-coffee-deep">
-                Thông tin đơn hàng
-              </p>
-              <div className="mt-3">
-                <p className="text-sm text-coffee-deep/60">
-                  Số tiền thanh toán
-                </p>
-                <p className="text-2xl font-bold text-[#006C35]">
-                  {deposit != null ? formatPrice(deposit) : "—"}
-                </p>
-              </div>
-              <div className="mt-4">
-                <p className="text-sm text-coffee-deep/60">
-                  Giá trị đơn hàng
-                </p>
-                <p className="font-bold text-coffee-deep">
-                  {totalPrice != null ? formatPrice(totalPrice) : "—"}
-                </p>
-              </div>
-              <div className="mt-4">
-                <p className="text-sm text-coffee-deep/60">Phí giao dịch</p>
-                <p className="font-bold text-coffee-deep">0₫</p>
-              </div>
-              <p className="mt-4 border-t border-coffee/10 pt-3 text-xs leading-relaxed text-coffee-deep/60">
-                Chuyển khoản đến: Vietcombank — PGD Kiến An • STK{" "}
-                <span className="font-bold text-coffee-deep">4943625922</span>{" "}
-                • PHAM THI THANH XUAN
-              </p>
-            </div>
-            <div className="w-full shrink-0 rounded-2xl border border-[#006C35]/25 bg-[#EAF6EC] p-4 text-center sm:w-[250px]">
-              <p className="text-sm font-bold text-[#006C35]">
-                Quét mã qua App Ngân hàng/ Ví điện tử
-              </p>
-              <div className="relative mx-auto mt-3 w-fit">
-                <img
-                  src="/images/qr-vietcombank.png"
-                  alt="Mã QR Vietcombank nhận tiền — PHAM THI THANH XUAN, 4943625922"
-                  className="w-[190px] rounded-lg"
-                />
-                <span
-                  aria-hidden
-                  className="absolute -left-2 -top-2 h-6 w-6 rounded-tl-md border-l-4 border-t-4 border-[#009444]"
-                />
-                <span
-                  aria-hidden
-                  className="absolute -right-2 -top-2 h-6 w-6 rounded-tr-md border-r-4 border-t-4 border-[#009444]"
-                />
-                <span
-                  aria-hidden
-                  className="absolute -bottom-2 -left-2 h-6 w-6 rounded-bl-md border-b-4 border-l-4 border-[#009444]"
-                />
-                <span
-                  aria-hidden
-                  className="absolute -bottom-2 -right-2 h-6 w-6 rounded-br-md border-b-4 border-r-4 border-[#009444]"
-                />
-              </div>
-              <p className="mt-3 text-sm font-bold italic text-[#006C35]">
-                Scan to Pay
-              </p>
-              <p className="mt-1 text-xs leading-relaxed text-coffee-deep/60">
-                Mở app ngân hàng, chọn quét mã QR rồi nhập số tiền.
-              </p>
-            </div>
+        <div className="rounded-xl bg-cream p-4">
+          <p className="text-base font-bold text-coffee-deep">
+            Thông tin đơn hàng
+          </p>
+          <div className="mt-3">
+            <p className="text-sm text-coffee-deep/60">Sản phẩm</p>
+            <p className="font-bold text-coffee-deep">
+              {product?.name ?? "—"}
+            </p>
           </div>
+          <div className="mt-3">
+            <p className="text-sm text-coffee-deep/60">
+              Số tiền thanh toán (ít nhất 50%)
+            </p>
+            <p className="text-2xl font-bold text-[#006C35]">
+              {deposit != null ? formatPrice(deposit) : "—"}
+            </p>
+          </div>
+          <div className="mt-4">
+            <p className="text-sm text-coffee-deep/60">
+              Giá trị đơn hàng
+            </p>
+            <p className="font-bold text-coffee-deep">
+              {totalPrice != null ? formatPrice(totalPrice) : "—"}
+            </p>
+          </div>
+          <div className="mt-4">
+            <p className="text-sm text-coffee-deep/60">Phí giao dịch</p>
+            <p className="font-bold text-coffee-deep">0₫</p>
+          </div>
+          <p className="mt-4 border-t border-coffee/10 pt-3 text-xs leading-relaxed text-coffee-deep/60">
+            Chuyển khoản đến: Vietcombank — PGD Kiến An • STK{" "}
+            <span className="font-bold text-coffee-deep">4943625922</span>{" "}
+            • PHAM THI THANH XUAN
+          </p>
           <p className="mt-4 text-sm leading-relaxed text-coffee-deep/70">
-            Quý khách vui lòng thanh toán trước ít nhất 30% giá trị đơn hàng
+            Quý khách vui lòng thanh toán trước ít nhất 50% giá trị đơn hàng
             qua phương thức chuyển khoản. Vui lòng ghi tên và số điện thoại
             vào nội dung chuyển khoản để xưởng đối soát. Xưởng sẽ liên hệ
             xác nhận sau khi nhận được đơn hàng.
@@ -244,10 +220,65 @@ export default function OrderClient() {
     const label =
       PAY_METHODS.find((m) => m.id === payMethod)?.label ?? "";
     return (
-      <p className="mt-4 rounded-xl bg-cream px-4 py-3 text-sm leading-relaxed text-coffee-deep/70">
+      <p className="rounded-xl bg-cream px-4 py-3 text-sm leading-relaxed text-coffee-deep/70">
         Thanh toán online qua {label} sẽ được bật sau — xưởng sẽ liên hệ
         hướng dẫn bạn thanh toán.
       </p>
+    );
+  }
+
+  // Khung mã QR chuyển khoản — nằm RIÊNG ở cột phải (kiểu trang
+  // VNPay), không chung hàng với đoạn văn bên trái. Chỉ hiện khi
+  // chọn chuyển khoản qua ngân hàng.
+  function renderQrPanel() {
+    if (payMethod !== "bank") return null;
+    return (
+      <div className="rounded-2xl border border-[#006C35]/25 bg-[#EAF6EC] p-5 text-center shadow-sm">
+        <p className="text-base font-bold text-[#006C35]">
+          Quét mã qua App Ngân hàng/ Ví điện tử
+        </p>
+        <p className="mt-2 text-sm text-[#009444]">
+          <span className="mr-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#009444] text-[10px] font-bold text-white">
+            i
+          </span>
+          Hướng dẫn thanh toán
+        </p>
+        <div className="relative mx-auto mt-4 w-fit">
+          <img
+            src="/images/qr-vietcombank.png"
+            alt="Mã QR Vietcombank nhận tiền — PHAM THI THANH XUAN, 4943625922"
+            className="w-[250px] rounded-lg"
+          />
+          <span
+            aria-hidden
+            className="absolute -left-2 -top-2 h-6 w-6 rounded-tl-md border-l-4 border-t-4 border-[#009444]"
+          />
+          <span
+            aria-hidden
+            className="absolute -right-2 -top-2 h-6 w-6 rounded-tr-md border-r-4 border-t-4 border-[#009444]"
+          />
+          <span
+            aria-hidden
+            className="absolute -bottom-2 -left-2 h-6 w-6 rounded-bl-md border-b-4 border-l-4 border-[#009444]"
+          />
+          <span
+            aria-hidden
+            className="absolute -bottom-2 -right-2 h-6 w-6 rounded-br-md border-b-4 border-r-4 border-[#009444]"
+          />
+        </div>
+        <p className="mt-4 text-sm font-bold italic text-[#006C35]">
+          Scan to Pay
+        </p>
+        <Link
+          href="/san-pham"
+          className="mx-auto mt-4 block w-[220px] rounded-lg bg-[#F0F0F0] px-4 py-3 text-sm text-coffee-deep transition hover:bg-[#E5E5E5]"
+        >
+          Hủy thanh toán
+        </Link>
+        <p className="mt-4 text-xs leading-relaxed text-coffee-deep/60">
+          Mở app ngân hàng, chọn quét mã QR rồi nhập số tiền.
+        </p>
+      </div>
     );
   }
 
@@ -343,7 +374,14 @@ export default function OrderClient() {
                 Phương thức thanh toán:{" "}
                 {PAY_METHODS.find((m) => m.id === payMethod)?.label}
               </p>
-              {renderPayDetails()}
+              <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-start">
+                <div className="min-w-0 flex-1">{renderPayDetails()}</div>
+                {payMethod === "bank" ? (
+                  <div className="w-full shrink-0 sm:w-[250px]">
+                    {renderQrPanel()}
+                  </div>
+                ) : null}
+              </div>
             </div>
           </>
         ) : (
@@ -550,7 +588,7 @@ export default function OrderClient() {
                         </button>
                       ))}
                     </div>
-                    {renderPayDetails()}
+                    <div className="mt-4">{renderPayDetails()}</div>
                   </div>
                 </div>
 
@@ -654,6 +692,11 @@ export default function OrderClient() {
                       </p>
                     )}
                   </div>
+
+                  {/* Mã QR chuyển khoản — riêng ở cột phải (kiểu trang
+                      VNPay), chỉ hiện khi chọn chuyển khoản qua ngân
+                      hàng. Không chung hàng với đoạn văn bên trái. */}
+                  {renderQrPanel()}
 
                   {/* Tóm tắt đơn hàng */}
                   <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm">
