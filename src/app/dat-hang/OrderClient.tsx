@@ -23,9 +23,10 @@ type Product = (typeof PRODUCTS)[number];
 // đơn hàng" — dòng đầu là tên mẫu đã chọn (số tiền đi theo đúng mẫu
 // đó), số tiền thanh toán = cọc 50%, giá trị đơn, phí 0đ — KHÔNG có
 // dòng "Nhà cung cấp", và chưa có "Mã đơn hàng" vì đơn chỉ có mã sau
-// khi khách bấm ĐẶT HÀNG; mã QR nằm NGANG với "Thông tin đơn hàng"
-// trong cùng hộp Phương thức thanh toán (thông tin bên trái, mã QR
-// bên phải). Nút "Hủy thanh toán" quay lại trang sản phẩm.
+// khi khách bấm ĐẶT HÀNG; mã QR là ô RIÊNG ở cột phải, cùng hàng
+// grid với hộp Phương thức thanh toán nên đỉnh thẳng nhau — KHÔNG
+// nằm trong khung thanh toán. Nút "Hủy thanh toán" quay lại trang
+// sản phẩm.
 // Màu khung QR theo từng phương thức: ngân hàng xanh lá, MoMo hồng,
 // ZaloPay xanh da trời.
 // - Ngân hàng: /images/qr-vietcombank.png là mã QR SẠCH chỉ còn ô
@@ -174,9 +175,9 @@ export default function OrderClient() {
   // Các ô làm theo kiểu trang VNPay: bên trái là "Thông tin đơn
   // hàng" (số tiền thanh toán = cọc 50%, giá trị đơn, phí 0đ —
   // KHÔNG có dòng "Nhà cung cấp", và chưa có "Mã đơn hàng" vì đơn
-  // chỉ có mã sau khi khách bấm ĐẶT HÀNG); mã QR nằm NGANG với ô
-  // này trong cùng hộp Phương thức thanh toán (thông tin bên trái,
-  // mã QR bên phải).
+  // chỉ có mã sau khi khách bấm ĐẶT HÀNG); mã QR là ô RIÊNG ở cột
+  // phải (con trực tiếp của grid, cùng hàng với hộp thanh toán),
+  // KHÔNG nằm trong khung này.
   // - Ngân hàng: thẻ VietQR thật của chủ xưởng, đã kiểm tra giải mã
   //   được: Vietcombank (BIN 970436), STK 4943625922.
   // - MoMo: mã QR MoMo thật, đã kiểm tra giải mã được: MoMo (BIN
@@ -266,10 +267,10 @@ export default function OrderClient() {
     );
   }
 
-  // Khung mã QR — nằm NGANG với "Thông tin đơn hàng" trong hộp
-  // Phương thức thanh toán (kiểu trang VNPay: thông tin bên trái,
-  // mã QR bên phải, cùng một hàng). Hiện khi chọn ngân hàng, MoMo
-  // hoặc ZaloPay; VNPay / PayPal chưa có mã QR nên không hiện.
+  // Khung mã QR — ô RIÊNG ở cột phải, là con trực tiếp của grid,
+  // cùng hàng với hộp Phương thức thanh toán nên đỉnh thẳng nhau
+  // (KHÔNG nằm trong khung thanh toán). Hiện khi chọn ngân hàng,
+  // MoMo hoặc ZaloPay; VNPay / PayPal chưa có mã QR nên không hiện.
   // Màu khung theo từng phương thức: ngân hàng xanh lá, MoMo hồng,
   // ZaloPay xanh da trời.
   function renderQrPanel() {
@@ -542,340 +543,327 @@ export default function OrderClient() {
 
             <form onSubmit={handleSubmit} className="mt-6">
               <div className="grid items-start gap-6 lg:grid-cols-[1fr_380px]">
-                {/* Cột trái */}
-                <div className="space-y-6">
-                  {/* Thông tin giao hàng */}
-                  <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm sm:p-8">
-                    <h2 className="text-xl font-black text-coffee-deep">
-                      Thông tin giao hàng
-                    </h2>
-                    <div className="mt-5 grid gap-5 sm:grid-cols-2">
-                      <label className="block">
-                        <span className={labelCls}>Họ tên *</span>
-                        <input
-                          type="text"
-                          required
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          placeholder="Tên của bạn"
-                          className={inputCls}
-                        />
-                      </label>
-                      <label className="block">
-                        <span className={labelCls}>Số điện thoại *</span>
-                        <input
-                          type="tel"
-                          required
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          placeholder="VD: 0912 345 678"
-                          className={inputCls}
-                        />
-                      </label>
-                    </div>
-                    <label className="mt-5 block">
-                      <span className={labelCls}>Email</span>
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="VD: ban@email.com"
-                        className={inputCls}
-                      />
-                    </label>
-                    <label className="mt-5 block">
-                      <span className={labelCls}>Địa chỉ (tên đường) *</span>
+                {/* Các ô là con trực tiếp của grid, xếp theo thứ tự:
+                    giao hàng, giỏ hàng, giao hàng, khuyến mãi,
+                    thanh toán, mã QR, tóm tắt. Trên desktop, hộp
+                    thanh toán (hàng 3, cột 1) và mã QR (hàng 3,
+                    cột 2) cùng một hàng nên đỉnh thẳng nhau; tóm
+                    tắt dùng lg:col-start-2 để ở lại cột phải. */}
+
+                {/* Thông tin giao hàng */}
+                <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm sm:p-8">
+                  <h2 className="text-xl font-black text-coffee-deep">
+                    Thông tin giao hàng
+                  </h2>
+                  <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                    <label className="block">
+                      <span className={labelCls}>Họ tên *</span>
                       <input
                         type="text"
                         required
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        placeholder="VD: 350 Hoàng Quốc Việt"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Tên của bạn"
                         className={inputCls}
                       />
                     </label>
-                    <div className="mt-5 grid gap-5 sm:grid-cols-3">
-                      <label className="block">
-                        <span className={labelCls}>Tỉnh/TP</span>
-                        <input
-                          type="text"
-                          value={city}
-                          onChange={(e) => setCity(e.target.value)}
-                          placeholder="VD: Hải Phòng"
-                          className={inputCls}
-                        />
-                      </label>
-                      <label className="block">
-                        <span className={labelCls}>Quận/Huyện</span>
-                        <input
-                          type="text"
-                          value={district}
-                          onChange={(e) => setDistrict(e.target.value)}
-                          placeholder="VD: Kiến An"
-                          className={inputCls}
-                        />
-                      </label>
-                      <label className="block">
-                        <span className={labelCls}>Phường/Xã</span>
-                        <input
-                          type="text"
-                          value={ward}
-                          onChange={(e) => setWard(e.target.value)}
-                          placeholder="VD: Phù Liễn"
-                          className={inputCls}
-                        />
-                      </label>
-                    </div>
-                    <label className="mt-5 block">
-                      <span className={labelCls}>
-                        Ghi chú (kích thước, màu vải, địa chỉ giao hàng…)
-                      </span>
-                      <textarea
-                        rows={4}
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        placeholder="VD: Sofa góc L dài 2,4m cho phòng khách chung cư, vải màu be…"
+                    <label className="block">
+                      <span className={labelCls}>Số điện thoại *</span>
+                      <input
+                        type="tel"
+                        required
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="VD: 0912 345 678"
                         className={inputCls}
                       />
                     </label>
                   </div>
-
-                  {/* Phương thức giao hàng */}
-                  <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm sm:p-8">
-                    <h2 className="text-xl font-black text-coffee-deep">
-                      Phương thức giao hàng
-                    </h2>
-                    <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-cream px-4 py-3">
-                      <span className="text-sm font-bold text-coffee-deep">
-                        Giao hàng tận nơi
-                      </span>
-                      <span className="text-sm text-coffee-deep/70">
-                        Phí vận chuyển: liên hệ báo giá
-                      </span>
-                    </div>
+                  <label className="mt-5 block">
+                    <span className={labelCls}>Email</span>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="VD: ban@email.com"
+                      className={inputCls}
+                    />
+                  </label>
+                  <label className="mt-5 block">
+                    <span className={labelCls}>Địa chỉ (tên đường) *</span>
+                    <input
+                      type="text"
+                      required
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="VD: 350 Hoàng Quốc Việt"
+                      className={inputCls}
+                    />
+                  </label>
+                  <div className="mt-5 grid gap-5 sm:grid-cols-3">
+                    <label className="block">
+                      <span className={labelCls}>Tỉnh/TP</span>
+                      <input
+                        type="text"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        placeholder="VD: Hải Phòng"
+                        className={inputCls}
+                      />
+                    </label>
+                    <label className="block">
+                      <span className={labelCls}>Quận/Huyện</span>
+                      <input
+                        type="text"
+                        value={district}
+                        onChange={(e) => setDistrict(e.target.value)}
+                        placeholder="VD: Kiến An"
+                        className={inputCls}
+                      />
+                    </label>
+                    <label className="block">
+                      <span className={labelCls}>Phường/Xã</span>
+                      <input
+                        type="text"
+                        value={ward}
+                        onChange={(e) => setWard(e.target.value)}
+                        placeholder="VD: Phù Liễn"
+                        className={inputCls}
+                      />
+                    </label>
                   </div>
+                  <label className="mt-5 block">
+                    <span className={labelCls}>
+                      Ghi chú (kích thước, màu vải, địa chỉ giao hàng…)
+                    </span>
+                    <textarea
+                      rows={4}
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="VD: Sofa góc L dài 2,4m cho phòng khách chung cư, vải màu be…"
+                      className={inputCls}
+                    />
+                  </label>
+                </div>
 
-                  {/* Phương thức thanh toán */}
-                  <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm sm:p-8">
-                    <h2 className="text-xl font-black text-coffee-deep">
-                      Phương thức thanh toán
-                    </h2>
-                    <div
-                      className="mt-4 space-y-3"
-                      role="radiogroup"
-                      aria-label="Phương thức thanh toán"
-                    >
-                      {PAY_METHODS.map((m) => (
-                        <button
-                          key={m.id}
-                          type="button"
-                          role="radio"
-                          aria-checked={payMethod === m.id}
-                          onClick={() => setPayMethod(m.id)}
-                          className={`flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3 text-left text-sm font-bold transition ${
-                            payMethod === m.id
-                              ? "border-coffee bg-cream text-coffee-deep"
-                              : "border-coffee/20 bg-white text-coffee-deep hover:border-coffee"
-                          }`}
-                        >
-                          <span
-                            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
-                              payMethod === m.id
-                                ? "border-coffee"
-                                : "border-coffee/30"
-                            }`}
-                            aria-hidden="true"
-                          >
-                            {payMethod === m.id && (
-                              <span className="h-2.5 w-2.5 rounded-full bg-[#241208]" />
-                            )}
-                          </span>
-                          {m.label}
-                        </button>
-                      ))}
-                    </div>
-                    {/* Thông tin đơn hàng + mã QR nằm cùng một hàng
-                        (kiểu trang VNPay): thông tin bên trái, mã QR
-                        bên phải, ngang nhau — không để mã QR lệch
-                        cao/thấp ở cột phải nữa. */}
-                    <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-start">
+                {/* Giỏ hàng */}
+                <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm">
+                  <h2 className="text-xl font-black text-coffee-deep">
+                    Giỏ hàng
+                  </h2>
+                  {product && (
+                    <div className="mt-4 flex items-center gap-4">
+                      <img
+                        src={product.img}
+                        alt={product.name}
+                        className="h-16 w-16 shrink-0 rounded-lg object-cover"
+                      />
                       <div className="min-w-0 flex-1">
-                        {renderPayDetails()}
+                        <p className="truncate text-sm font-extrabold text-coffee-deep">
+                          {product.name}
+                        </p>
+                        <p className="mt-0.5 text-sm font-bold text-coffee">
+                          {unitPrice
+                            ? formatPrice(unitPrice)
+                            : "Liên hệ báo giá"}
+                        </p>
                       </div>
-                      {(payMethod === "bank" ||
-                        payMethod === "momo" ||
-                        payMethod === "zalopay") && (
-                        <div className="w-full shrink-0 sm:w-[300px]">
-                          {renderQrPanel()}
-                        </div>
-                      )}
+                      <div className="flex shrink-0 items-center rounded-full border border-coffee/20">
+                        <button
+                          type="button"
+                          aria-label="Giảm số lượng"
+                          onClick={() =>
+                            setQuantity((q) => Math.max(1, q - 1))
+                          }
+                          disabled={quantity <= 1}
+                          className="px-3 py-1.5 text-lg font-bold text-coffee-deep disabled:opacity-30"
+                        >
+                          −
+                        </button>
+                        <span className="w-6 text-center text-sm font-bold text-coffee-deep">
+                          {quantity}
+                        </span>
+                        <button
+                          type="button"
+                          aria-label="Tăng số lượng"
+                          onClick={() =>
+                            setQuantity((q) => Math.min(99, q + 1))
+                          }
+                          className="px-3 py-1.5 text-lg font-bold text-coffee-deep"
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
+                  )}
+                  <label className="mt-4 block">
+                    <span className={labelCls}>Đổi mẫu</span>
+                    <select
+                      value={product?.name ?? ""}
+                      onChange={(e) => {
+                        const found = products.find(
+                          (p) => p.name === e.target.value,
+                        );
+                        if (found) setProduct(found);
+                      }}
+                      className={inputCls}
+                    >
+                      {products.map((p) => (
+                        <option key={p.name} value={p.name}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+
+                {/* Phương thức giao hàng */}
+                <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm sm:p-8">
+                  <h2 className="text-xl font-black text-coffee-deep">
+                    Phương thức giao hàng
+                  </h2>
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-cream px-4 py-3">
+                    <span className="text-sm font-bold text-coffee-deep">
+                      Giao hàng tận nơi
+                    </span>
+                    <span className="text-sm text-coffee-deep/70">
+                      Phí vận chuyển: liên hệ báo giá
+                    </span>
                   </div>
                 </div>
 
-                {/* Cột phải */}
-                <div className="space-y-6">
-                  {/* Giỏ hàng */}
-                  <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm">
-                    <h2 className="text-xl font-black text-coffee-deep">
-                      Giỏ hàng
-                    </h2>
-                    {product && (
-                      <div className="mt-4 flex items-center gap-4">
-                        <img
-                          src={product.img}
-                          alt={product.name}
-                          className="h-16 w-16 shrink-0 rounded-lg object-cover"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-extrabold text-coffee-deep">
-                            {product.name}
-                          </p>
-                          <p className="mt-0.5 text-sm font-bold text-coffee">
-                            {unitPrice
-                              ? formatPrice(unitPrice)
-                              : "Liên hệ báo giá"}
-                          </p>
-                        </div>
-                        <div className="flex shrink-0 items-center rounded-full border border-coffee/20">
-                          <button
-                            type="button"
-                            aria-label="Giảm số lượng"
-                            onClick={() =>
-                              setQuantity((q) => Math.max(1, q - 1))
-                            }
-                            disabled={quantity <= 1}
-                            className="px-3 py-1.5 text-lg font-bold text-coffee-deep disabled:opacity-30"
-                          >
-                            −
-                          </button>
-                          <span className="w-6 text-center text-sm font-bold text-coffee-deep">
-                            {quantity}
-                          </span>
-                          <button
-                            type="button"
-                            aria-label="Tăng số lượng"
-                            onClick={() =>
-                              setQuantity((q) => Math.min(99, q + 1))
-                            }
-                            className="px-3 py-1.5 text-lg font-bold text-coffee-deep"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                    <label className="mt-4 block">
-                      <span className={labelCls}>Đổi mẫu</span>
-                      <select
-                        value={product?.name ?? ""}
-                        onChange={(e) => {
-                          const found = products.find(
-                            (p) => p.name === e.target.value,
-                          );
-                          if (found) setProduct(found);
-                        }}
-                        className={inputCls}
-                      >
-                        {products.map((p) => (
-                          <option key={p.name} value={p.name}>
-                            {p.name}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-
-                  {/* Mã khuyến mãi */}
-                  <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm">
-                    <h2 className="text-xl font-black text-coffee-deep">
-                      Mã khuyến mãi
-                    </h2>
-                    <div className="mt-4 flex gap-2">
-                      <input
-                        type="text"
-                        value={promo}
-                        onChange={(e) => setPromo(e.target.value)}
-                        placeholder="Nhập mã khuyến mãi"
-                        className="min-w-0 flex-1 rounded-lg border border-coffee/20 bg-white px-4 py-3 text-sm text-coffee-deep outline-none focus:border-coffee"
-                      />
-                      <button
-                        type="button"
-                        onClick={handlePromo}
-                        className="shrink-0 rounded-lg bg-[#241208] px-5 py-3 text-sm font-bold text-white transition hover:bg-coffee-dark"
-                      >
-                        Áp dụng
-                      </button>
-                    </div>
-                    {promoMsg && (
-                      <p className="mt-3 text-sm text-coffee-deep/70">
-                        {promoMsg}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Mã QR đã chuyển vào trong hộp Phương thức thanh
-                      toán (ngang với Thông tin đơn hàng) nên không
-                      còn ở cột phải nữa. */}
-
-                  {/* Tóm tắt đơn hàng */}
-                  <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm">
-                    <h2 className="text-xl font-black text-coffee-deep">
-                      Tóm tắt đơn hàng
-                    </h2>
-                    <div className="mt-4 space-y-2 text-sm">
-                      <div className="flex justify-between gap-4">
-                        <span className="text-coffee-deep/70">
-                          Tổng tiền hàng
-                          {unitPrice && quantity > 1
-                            ? ` (${formatPrice(unitPrice)} × ${quantity})`
-                            : ""}
-                        </span>
-                        <span className="font-bold text-coffee-deep">
-                          {totalPrice
-                            ? formatPrice(totalPrice)
-                            : "Liên hệ báo giá"}
-                        </span>
-                      </div>
-                      <div className="flex justify-between gap-4">
-                        <span className="text-coffee-deep/70">
-                          Phí vận chuyển
-                        </span>
-                        <span className="font-bold text-coffee-deep">
-                          Liên hệ
-                        </span>
-                      </div>
-                      <div className="mt-3 flex justify-between gap-4 border-t border-coffee/10 pt-3">
-                        <span className="font-bold text-coffee-deep">
-                          Tổng thanh toán
-                        </span>
-                        <span className="text-lg font-black text-coffee">
-                          {totalPrice
-                            ? formatPrice(totalPrice)
-                            : "Liên hệ báo giá"}
-                        </span>
-                      </div>
-                    </div>
-                    {error && (
-                      <p
-                        role="alert"
-                        className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
-                      >
-                        {error}
-                      </p>
-                    )}
+                {/* Mã khuyến mãi */}
+                <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm">
+                  <h2 className="text-xl font-black text-coffee-deep">
+                    Mã khuyến mãi
+                  </h2>
+                  <div className="mt-4 flex gap-2">
+                    <input
+                      type="text"
+                      value={promo}
+                      onChange={(e) => setPromo(e.target.value)}
+                      placeholder="Nhập mã khuyến mãi"
+                      className="min-w-0 flex-1 rounded-lg border border-coffee/20 bg-white px-4 py-3 text-sm text-coffee-deep outline-none focus:border-coffee"
+                    />
                     <button
-                      type="submit"
-                      disabled={!canSubmit || sending}
-                      className="mt-5 w-full rounded-full bg-[#241208] py-3.5 text-base font-bold text-white shadow transition hover:bg-coffee-dark disabled:cursor-not-allowed disabled:opacity-50"
+                      type="button"
+                      onClick={handlePromo}
+                      className="shrink-0 rounded-lg bg-[#241208] px-5 py-3 text-sm font-bold text-white transition hover:bg-coffee-dark"
                     >
-                      {sending ? "Đang gửi…" : "ĐẶT HÀNG"}
+                      Áp dụng
                     </button>
-                    <p className="mt-3 text-center text-sm text-coffee-deep/60">
-                      Xưởng sẽ gọi lại tư vấn và xác nhận đơn hàng trước khi
-                      bạn thanh toán.
-                    </p>
                   </div>
+                  {promoMsg && (
+                    <p className="mt-3 text-sm text-coffee-deep/70">
+                      {promoMsg}
+                    </p>
+                  )}
+                </div>
+
+                {/* Phương thức thanh toán */}
+                <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm sm:p-8">
+                  <h2 className="text-xl font-black text-coffee-deep">
+                    Phương thức thanh toán
+                  </h2>
+                  <div
+                    className="mt-4 space-y-3"
+                    role="radiogroup"
+                    aria-label="Phương thức thanh toán"
+                  >
+                    {PAY_METHODS.map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={payMethod === m.id}
+                        onClick={() => setPayMethod(m.id)}
+                        className={`flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3 text-left text-sm font-bold transition ${
+                          payMethod === m.id
+                            ? "border-coffee bg-cream text-coffee-deep"
+                            : "border-coffee/20 bg-white text-coffee-deep hover:border-coffee"
+                        }`}
+                      >
+                        <span
+                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                            payMethod === m.id
+                              ? "border-coffee"
+                              : "border-coffee/30"
+                          }`}
+                          aria-hidden="true"
+                        >
+                          {payMethod === m.id && (
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#241208]" />
+                          )}
+                        </span>
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-4">{renderPayDetails()}</div>
+                </div>
+
+                {/* Mã QR — ô riêng ở cột phải, cùng hàng với hộp
+                    Phương thức thanh toán (cùng đỉnh hàng grid),
+                    KHÔNG nằm trong khung thanh toán. */}
+                {renderQrPanel()}
+
+                {/* Tóm tắt đơn hàng */}
+                <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm lg:col-start-2">
+                  <h2 className="text-xl font-black text-coffee-deep">
+                    Tóm tắt đơn hàng
+                  </h2>
+                  <div className="mt-4 space-y-2 text-sm">
+                    <div className="flex justify-between gap-4">
+                      <span className="text-coffee-deep/70">
+                        Tổng tiền hàng
+                        {unitPrice && quantity > 1
+                          ? ` (${formatPrice(unitPrice)} × ${quantity})`
+                          : ""}
+                      </span>
+                      <span className="font-bold text-coffee-deep">
+                        {totalPrice
+                          ? formatPrice(totalPrice)
+                          : "Liên hệ báo giá"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <span className="text-coffee-deep/70">
+                        Phí vận chuyển
+                      </span>
+                      <span className="font-bold text-coffee-deep">
+                        Liên hệ
+                      </span>
+                    </div>
+                    <div className="mt-3 flex justify-between gap-4 border-t border-coffee/10 pt-3">
+                      <span className="font-bold text-coffee-deep">
+                        Tổng thanh toán
+                      </span>
+                      <span className="text-lg font-black text-coffee">
+                        {totalPrice
+                          ? formatPrice(totalPrice)
+                          : "Liên hệ báo giá"}
+                      </span>
+                    </div>
+                  </div>
+                  {error && (
+                    <p
+                      role="alert"
+                      className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
+                    >
+                      {error}
+                    </p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={!canSubmit || sending}
+                    className="mt-5 w-full rounded-full bg-[#241208] py-3.5 text-base font-bold text-white shadow transition hover:bg-coffee-dark disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {sending ? "Đang gửi…" : "ĐẶT HÀNG"}
+                  </button>
+                  <p className="mt-3 text-center text-sm text-coffee-deep/60">
+                    Xưởng sẽ gọi lại tư vấn và xác nhận đơn hàng trước khi
+                    bạn thanh toán.
+                  </p>
                 </div>
               </div>
             </form>
