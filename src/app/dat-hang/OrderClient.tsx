@@ -23,9 +23,11 @@ type Product = (typeof PRODUCTS)[number];
 // đơn hàng" — dòng đầu là tên mẫu đã chọn (số tiền đi theo đúng mẫu
 // đó), số tiền thanh toán = cọc 50%, giá trị đơn, phí 0đ — KHÔNG có
 // dòng "Nhà cung cấp", và chưa có "Mã đơn hàng" vì đơn chỉ có mã sau
-// khi khách bấm ĐẶT HÀNG; mã QR nằm RIÊNG ở cột phải (không chung
-// hàng với đoạn văn bên trái). Nút "Hủy thanh toán" quay lại trang
-// sản phẩm.
+// khi khách bấm ĐẶT HÀNG; mã QR nằm NGANG với "Thông tin đơn hàng"
+// trong cùng hộp Phương thức thanh toán (thông tin bên trái, mã QR
+// bên phải). Nút "Hủy thanh toán" quay lại trang sản phẩm.
+// Màu khung QR theo từng phương thức: ngân hàng xanh lá, MoMo hồng,
+// ZaloPay xanh da trời.
 // - Ngân hàng: /images/qr-vietcombank.png là mã QR SẠCH chỉ còn ô
 //   mã (cắt từ thẻ VietQR thật của chủ xưởng), đã kiểm tra giải mã
 //   được: Vietcombank BIN 970436, STK 4943625922.
@@ -172,8 +174,9 @@ export default function OrderClient() {
   // Các ô làm theo kiểu trang VNPay: bên trái là "Thông tin đơn
   // hàng" (số tiền thanh toán = cọc 50%, giá trị đơn, phí 0đ —
   // KHÔNG có dòng "Nhà cung cấp", và chưa có "Mã đơn hàng" vì đơn
-  // chỉ có mã sau khi khách bấm ĐẶT HÀNG); mã QR nằm RIÊNG ở cột
-  // phải (không chung hàng với đoạn văn bên trái).
+  // chỉ có mã sau khi khách bấm ĐẶT HÀNG); mã QR nằm NGANG với ô
+  // này trong cùng hộp Phương thức thanh toán (thông tin bên trái,
+  // mã QR bên phải).
   // - Ngân hàng: thẻ VietQR thật của chủ xưởng, đã kiểm tra giải mã
   //   được: Vietcombank (BIN 970436), STK 4943625922.
   // - MoMo: mã QR MoMo thật, đã kiểm tra giải mã được: MoMo (BIN
@@ -263,9 +266,12 @@ export default function OrderClient() {
     );
   }
 
-  // Khung mã QR — nằm RIÊNG ở cột phải (kiểu trang VNPay), không
-  // chung hàng với đoạn văn bên trái. Hiện khi chọn ngân hàng, MoMo
+  // Khung mã QR — nằm NGANG với "Thông tin đơn hàng" trong hộp
+  // Phương thức thanh toán (kiểu trang VNPay: thông tin bên trái,
+  // mã QR bên phải, cùng một hàng). Hiện khi chọn ngân hàng, MoMo
   // hoặc ZaloPay; VNPay / PayPal chưa có mã QR nên không hiện.
+  // Màu khung theo từng phương thức: ngân hàng xanh lá, MoMo hồng,
+  // ZaloPay xanh da trời.
   function renderQrPanel() {
     if (payMethod === "vnpay" || payMethod === "paypal") return null;
     // MoMo: mã QR VietQR thật (MoMo BIN 971025, 0943625922), đã kiểm
@@ -275,19 +281,20 @@ export default function OrderClient() {
     // ĐOẠN CHAT Zalo, không phải mã thanh toán trực tiếp; khách quét
     // để nhắn Zalo, xưởng hướng dẫn thanh toán trong đoạn chat.
     const isZalo = payMethod === "zalopay";
+    const isMomo = payMethod === "momo";
     const qrSrc = isZalo
       ? "/images/zalo-qr.png"
-      : payMethod === "momo"
+      : isMomo
         ? "/images/qr-momo.png"
         : "/images/qr-vietcombank.png";
     const qrAlt = isZalo
       ? "Mã QR Zalo — Phạm Thanh Xuân, quét để nhắn Zalo với xưởng"
-      : payMethod === "momo"
+      : isMomo
         ? "Mã QR MoMo nhận tiền — PHAM THI THANH XUAN, 0943625922"
         : "Mã QR Vietcombank nhận tiền — PHAM THI THANH XUAN, 4943625922";
     const title = isZalo
       ? "Quét mã để nhắn Zalo"
-      : payMethod === "momo"
+      : isMomo
         ? "Quét mã qua MoMo"
         : "Quét mã qua App Ngân hàng/ Ví điện tử";
     const guide = isZalo
@@ -296,11 +303,44 @@ export default function OrderClient() {
     const hint = isZalo
       ? "Mở app Zalo, quét mã để nhắn với xưởng."
       : "Mở app MoMo, ZaloPay hoặc ngân hàng, chọn quét mã QR rồi nhập số tiền.";
+    // Màu khung theo phương thức (lớp Tailwind viết đầy đủ để build
+    // nhận diện được): ngân hàng xanh lá, MoMo hồng, ZaloPay xanh
+    // da trời.
+    const theme = isMomo
+      ? {
+          panel: "border-[#D82D8B]/25 bg-[#FCEAF3]",
+          title: "text-[#A50064]",
+          guide: "text-[#D82D8B]",
+          iconBg: "bg-[#D82D8B]",
+          corner: "border-[#D82D8B]",
+          scan: "text-[#A50064]",
+        }
+      : isZalo
+        ? {
+            panel: "border-[#008FE5]/25 bg-[#E8F4FE]",
+            title: "text-[#0072C6]",
+            guide: "text-[#008FE5]",
+            iconBg: "bg-[#008FE5]",
+            corner: "border-[#008FE5]",
+            scan: "text-[#0072C6]",
+          }
+        : {
+            panel: "border-[#006C35]/25 bg-[#EAF6EC]",
+            title: "text-[#006C35]",
+            guide: "text-[#009444]",
+            iconBg: "bg-[#009444]",
+            corner: "border-[#009444]",
+            scan: "text-[#006C35]",
+          };
     return (
-      <div className="rounded-2xl border border-[#006C35]/25 bg-[#EAF6EC] p-5 text-center shadow-sm">
-        <p className="text-base font-bold text-[#006C35]">{title}</p>
-        <p className="mt-2 text-sm text-[#009444]">
-          <span className="mr-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#009444] text-[10px] font-bold text-white">
+      <div
+        className={`rounded-2xl border ${theme.panel} p-5 text-center shadow-sm`}
+      >
+        <p className={`text-base font-bold ${theme.title}`}>{title}</p>
+        <p className={`mt-2 text-sm ${theme.guide}`}>
+          <span
+            className={`mr-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full ${theme.iconBg} text-[10px] font-bold text-white`}
+          >
             i
           </span>
           {guide}
@@ -313,23 +353,23 @@ export default function OrderClient() {
           />
           <span
             aria-hidden
-            className="absolute -left-2 -top-2 h-6 w-6 rounded-tl-md border-l-4 border-t-4 border-[#009444]"
+            className={`absolute -left-2 -top-2 h-6 w-6 rounded-tl-md border-l-4 border-t-4 ${theme.corner}`}
           />
           <span
             aria-hidden
-            className="absolute -right-2 -top-2 h-6 w-6 rounded-tr-md border-r-4 border-t-4 border-[#009444]"
+            className={`absolute -right-2 -top-2 h-6 w-6 rounded-tr-md border-r-4 border-t-4 ${theme.corner}`}
           />
           <span
             aria-hidden
-            className="absolute -bottom-2 -left-2 h-6 w-6 rounded-bl-md border-b-4 border-l-4 border-[#009444]"
+            className={`absolute -bottom-2 -left-2 h-6 w-6 rounded-bl-md border-b-4 border-l-4 ${theme.corner}`}
           />
           <span
             aria-hidden
-            className="absolute -bottom-2 -right-2 h-6 w-6 rounded-br-md border-b-4 border-r-4 border-[#009444]"
+            className={`absolute -bottom-2 -right-2 h-6 w-6 rounded-br-md border-b-4 border-r-4 ${theme.corner}`}
           />
         </div>
         {isZalo ? null : (
-          <p className="mt-4 text-sm font-bold italic text-[#006C35]">
+          <p className={`mt-4 text-sm font-bold italic ${theme.scan}`}>
             Scan to Pay
           </p>
         )}
@@ -654,7 +694,22 @@ export default function OrderClient() {
                         </button>
                       ))}
                     </div>
-                    <div className="mt-4">{renderPayDetails()}</div>
+                    {/* Thông tin đơn hàng + mã QR nằm cùng một hàng
+                        (kiểu trang VNPay): thông tin bên trái, mã QR
+                        bên phải, ngang nhau — không để mã QR lệch
+                        cao/thấp ở cột phải nữa. */}
+                    <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-start">
+                      <div className="min-w-0 flex-1">
+                        {renderPayDetails()}
+                      </div>
+                      {(payMethod === "bank" ||
+                        payMethod === "momo" ||
+                        payMethod === "zalopay") && (
+                        <div className="w-full shrink-0 sm:w-[300px]">
+                          {renderQrPanel()}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -759,10 +814,9 @@ export default function OrderClient() {
                     )}
                   </div>
 
-                  {/* Mã QR — riêng ở cột phải (kiểu trang VNPay),
-                      chỉ hiện khi chọn ngân hàng, MoMo hoặc ZaloPay.
-                      Không chung hàng với đoạn văn bên trái. */}
-                  {renderQrPanel()}
+                  {/* Mã QR đã chuyển vào trong hộp Phương thức thanh
+                      toán (ngang với Thông tin đơn hàng) nên không
+                      còn ở cột phải nữa. */}
 
                   {/* Tóm tắt đơn hàng */}
                   <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm">
