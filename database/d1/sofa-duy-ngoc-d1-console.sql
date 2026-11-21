@@ -89,14 +89,14 @@ INSERT OR IGNORE INTO categories (id, name, slug) VALUES
   (3, 'Tối giản', 'toi-gian');
 
 INSERT OR IGNORE INTO products (id, name, style, image, description, price, sale_price) VALUES
-  (1, 'Sofa da chữ L nâu đậm', 'Hiện đại', '/images/sofa/sofa-da-chu-l-nau-dam.jpg', 'Da nâu đậm, dáng chữ L, lưng tựa nút bấm, chân gỗ — sang trọng, dễ lau chùi.', 15000000, 13500000),
-  (2, 'Sofa da chữ L nâu chần trám', 'Hiện đại', '/images/sofa/sofa-da-chu-l-nau-chan-tram.jpg', 'Da nâu, dáng chữ L, tựa lưng chần trám, đệm ngồi dày dặn.', 14500000, NULL),
-  (3, 'Sofa vải xanh dương chữ L', 'Tối giản', '/images/sofa/sofa-vai-xanh-duong-chu-l.jpg', 'Vải xanh dương, dáng chữ L rộng rãi, đệm êm, hợp phòng khách hiện đại.', 13000000, 11700000),
-  (4, 'Sofa vải trắng kem chữ L', 'Tối giản', '/images/sofa/sofa-vai-trang-kem-chu-l.jpg', 'Vải trắng kem, dáng chữ L, tông sáng, tạo cảm giác rộng và thoáng.', 12500000, NULL),
-  (5, 'Sofa cổ điển xanh nhạt', 'Tân cổ điển', '/images/sofa/sofa-co-dien-xanh-nhat.jpg', 'Vải xanh nhạt, lưng tựa nút bấm cổ điển, tay vịn thanh lịch.', 12000000, NULL),
+  (1, 'Sofa da chữ L nâu đậm', 'Hiện đại', '/images/sofa/sofa-da-chu-l-nau-dam.jpg', 'Da nâu đậm, dáng chữ L, lưng tựa nút bấm, chân gỗ — sang trọng, dễ lau chùi.', 8500000, 7650000),
+  (2, 'Sofa da chữ L nâu chần trám', 'Hiện đại', '/images/sofa/sofa-da-chu-l-nau-chan-tram.jpg', 'Da nâu, dáng chữ L, tựa lưng chần trám, đệm ngồi dày dặn.', 9000000, NULL),
+  (3, 'Sofa vải xanh dương chữ L', 'Tối giản', '/images/sofa/sofa-vai-xanh-duong-chu-l.jpg', 'Vải xanh dương, dáng chữ L rộng rãi, đệm êm, hợp phòng khách hiện đại.', 8500000, 7650000),
+  (4, 'Sofa vải trắng kem chữ L', 'Tối giản', '/images/sofa/sofa-vai-trang-kem-chu-l.jpg', 'Vải trắng kem, dáng chữ L, tông sáng, tạo cảm giác rộng và thoáng.', 5600000, NULL),
+  (5, 'Sofa cổ điển xanh nhạt', 'Tân cổ điển', '/images/sofa/sofa-co-dien-xanh-nhat.jpg', 'Vải xanh nhạt, lưng tựa nút bấm cổ điển, tay vịn thanh lịch.', 2200000, NULL),
   (6, 'Sofa cổ điển xám đậm', 'Tân cổ điển', '/images/sofa/sofa-co-dien-xam-dam.jpg', 'Vải xám đậm, lưng tựa nút bấm cổ điển, dáng gọn, dễ phối nội thất.', 13500000, NULL),
   (7, 'Sofa cổ điển xanh teal', 'Tân cổ điển', '/images/sofa/sofa-co-dien-xanh-teal.jpg', 'Vải xanh teal, lưng tựa nút bấm cổ điển, điểm nhấn nổi bật cho phòng khách.', 14000000, 12600000),
-  (8, 'Sofa cổ điển xám nhạt kèm đôn', 'Tân cổ điển', '/images/sofa/sofa-co-dien-xam-nhat-kem-don.jpg', 'Vải xám nhạt, lưng tựa nút bấm cổ điển, kèm 2 đôn tiện lợi.', 15000000, NULL);
+  (8, 'Sofa cổ điển xám nhạt kèm đôn', 'Tân cổ điển', '/images/sofa/sofa-co-dien-xam-nhat-kem-don.jpg', 'Vải xám nhạt, lưng tựa nút bấm cổ điển, kèm 2 đôn tiện lợi.', 2500000, NULL);
 
 INSERT OR IGNORE INTO admins (id, email, password_hash, name, role) VALUES
   (1, 'duyngocmanufac@gmail.com', '$2b$10$rFB71rAsa5OD6eTLcff.oO17fq6V.ax138aGTuZyuIhi8iP1f3xPO', 'Quản trị viên Sofa Duy Ngọc', 'admin');

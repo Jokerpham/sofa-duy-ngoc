@@ -207,19 +207,20 @@ INSERT OR IGNORE INTO categories (id, name, slug) VALUES
   (2, 'Tân cổ điển', 'tan-co-dien'),
   (3, 'Tối giản', 'toi-gian');
 
--- 8 mẫu sofa thật của xưởng. GIÁ TẠM THỜI (đặt ngày 2026-11-14,
--- khoảng 12–15 triệu/mẫu, để hiển thị giá kiểu MONA): chỉ 3 mẫu có
--- giá giảm -10% (nâu đậm, xanh dương, xanh teal), 5 mẫu còn lại
--- sale_price NULL. Khi có giá thật thì sửa lại số ở đây.
+-- 8 mẫu sofa thật của xưởng. GIÁ THẬT cho 6 mẫu (chủ xưởng gửi
+-- ngày 2026-11-21); 2 mẫu còn lại (xám đậm, xanh teal) vẫn GIÁ TẠM
+-- THỜI (đặt ngày 2026-11-14, khoảng 12–15 triệu/mẫu): chỉ 3 mẫu
+-- có giá giảm -10% (nâu đậm, xanh dương, xanh teal), 5 mẫu còn lại
+-- sale_price NULL. Khi có giá thật cho 2 mẫu còn lại thì sửa số ở đây.
 INSERT OR IGNORE INTO products (id, name, style, image, description, price, sale_price) VALUES
-  (1, 'Sofa da chữ L nâu đậm', 'Hiện đại', '/images/sofa/sofa-da-chu-l-nau-dam.jpg', 'Da nâu đậm, dáng chữ L, lưng tựa nút bấm, chân gỗ — sang trọng, dễ lau chùi.', 15000000, 13500000),
-  (2, 'Sofa da chữ L nâu chần trám', 'Hiện đại', '/images/sofa/sofa-da-chu-l-nau-chan-tram.jpg', 'Da nâu, dáng chữ L, tựa lưng chần trám, đệm ngồi dày dặn.', 14500000, NULL),
-  (3, 'Sofa vải xanh dương chữ L', 'Tối giản', '/images/sofa/sofa-vai-xanh-duong-chu-l.jpg', 'Vải xanh dương, dáng chữ L rộng rãi, đệm êm, hợp phòng khách hiện đại.', 13000000, 11700000),
-  (4, 'Sofa vải trắng kem chữ L', 'Tối giản', '/images/sofa/sofa-vai-trang-kem-chu-l.jpg', 'Vải trắng kem, dáng chữ L, tông sáng, tạo cảm giác rộng và thoáng.', 12500000, NULL),
-  (5, 'Sofa cổ điển xanh nhạt', 'Tân cổ điển', '/images/sofa/sofa-co-dien-xanh-nhat.jpg', 'Vải xanh nhạt, lưng tựa nút bấm cổ điển, tay vịn thanh lịch.', 12000000, NULL),
+  (1, 'Sofa da chữ L nâu đậm', 'Hiện đại', '/images/sofa/sofa-da-chu-l-nau-dam.jpg', 'Da nâu đậm, dáng chữ L, lưng tựa nút bấm, chân gỗ — sang trọng, dễ lau chùi.', 8500000, 7650000),
+  (2, 'Sofa da chữ L nâu chần trám', 'Hiện đại', '/images/sofa/sofa-da-chu-l-nau-chan-tram.jpg', 'Da nâu, dáng chữ L, tựa lưng chần trám, đệm ngồi dày dặn.', 9000000, NULL),
+  (3, 'Sofa vải xanh dương chữ L', 'Tối giản', '/images/sofa/sofa-vai-xanh-duong-chu-l.jpg', 'Vải xanh dương, dáng chữ L rộng rãi, đệm êm, hợp phòng khách hiện đại.', 8500000, 7650000),
+  (4, 'Sofa vải trắng kem chữ L', 'Tối giản', '/images/sofa/sofa-vai-trang-kem-chu-l.jpg', 'Vải trắng kem, dáng chữ L, tông sáng, tạo cảm giác rộng và thoáng.', 5600000, NULL),
+  (5, 'Sofa cổ điển xanh nhạt', 'Tân cổ điển', '/images/sofa/sofa-co-dien-xanh-nhat.jpg', 'Vải xanh nhạt, lưng tựa nút bấm cổ điển, tay vịn thanh lịch.', 2200000, NULL),
   (6, 'Sofa cổ điển xám đậm', 'Tân cổ điển', '/images/sofa/sofa-co-dien-xam-dam.jpg', 'Vải xám đậm, lưng tựa nút bấm cổ điển, dáng gọn, dễ phối nội thất.', 13500000, NULL),
   (7, 'Sofa cổ điển xanh teal', 'Tân cổ điển', '/images/sofa/sofa-co-dien-xanh-teal.jpg', 'Vải xanh teal, lưng tựa nút bấm cổ điển, điểm nhấn nổi bật cho phòng khách.', 14000000, 12600000),
-  (8, 'Sofa cổ điển xám nhạt kèm đôn', 'Tân cổ điển', '/images/sofa/sofa-co-dien-xam-nhat-kem-don.jpg', 'Vải xám nhạt, lưng tựa nút bấm cổ điển, kèm 2 đôn tiện lợi.', 15000000, NULL);
+  (8, 'Sofa cổ điển xám nhạt kèm đôn', 'Tân cổ điển', '/images/sofa/sofa-co-dien-xam-nhat-kem-don.jpg', 'Vải xám nhạt, lưng tựa nút bấm cổ điển, kèm 2 đôn tiện lợi.', 2500000, NULL);
 
 -- Tài khoản quản trị: duyngocmanufac@gmail.com
 -- Mật khẩu ban đầu là admin123 (đã băm bằng bcrypt — giữ nguyên

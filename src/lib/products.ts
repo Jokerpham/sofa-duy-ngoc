@@ -1,28 +1,33 @@
 // Sản phẩm thật của xưởng Sofa Duy Ngọc — ảnh thật, bán thật.
-// GIÁ TẠM THỜI (do chủ xưởng đặt tạm ngày 2026-11-14, khoảng
-// 12–15 triệu/mẫu, để hiển thị giá kiểu MONA): khi có giá thật thì
-// sửa lại số trong bảng TEMP_PRICES / TEMP_SALE_PRICES dưới đây +
-// chạy file database/mysql/set-temporary-prices.sql để đồng bộ MySQL.
+// GIÁ THẬT cho 6 mẫu (chủ xưởng gửi ngày 2026-11-21); 2 mẫu
+// ("Sofa cổ điển xám đậm", "Sofa cổ điển xanh teal") vẫn GIÁ TẠM
+// THỜI (đặt ngày 2026-11-14, khoảng 12–15 triệu/mẫu). Khi có giá
+// thật cho 2 mẫu còn lại thì sửa lại số trong bảng TEMP_PRICES /
+// TEMP_SALE_PRICES dưới đây + chạy file
+// database/mysql/set-temporary-prices.sql để đồng bộ MySQL.
 // Chỉ 3 mẫu có giá giảm (-10%); 5 mẫu còn lại chỉ có giá thường.
 // Dùng chung cho trang Sản phẩm và cột Sản phẩm ở footer.
 export type ProductStyle = "Hiện đại" | "Tân cổ điển" | "Tối giản";
 
-// Giá tạm thời theo tên mẫu — chủ xưởng sẽ xem lại và chỉnh sau.
+// Giá theo tên mẫu — GIÁ THẬT cho 6 mẫu (chủ xưởng gửi ngày
+// 2026-11-21); 2 mẫu còn lại ("Sofa cổ điển xám đậm", "Sofa cổ
+// điển xanh teal") vẫn là GIÁ TẠM THỜI (12–15 triệu/mẫu, đặt ngày
+// 2026-11-14) cho tới khi có giá thật.
 const TEMP_PRICES: Record<string, number> = {
-  "Sofa da chữ L nâu đậm": 15000000,
-  "Sofa da chữ L nâu chần trám": 14500000,
-  "Sofa vải xanh dương chữ L": 13000000,
-  "Sofa vải trắng kem chữ L": 12500000,
-  "Sofa cổ điển xanh nhạt": 12000000,
+  "Sofa da chữ L nâu đậm": 8500000,
+  "Sofa da chữ L nâu chần trám": 9000000,
+  "Sofa vải xanh dương chữ L": 8500000,
+  "Sofa vải trắng kem chữ L": 5600000,
+  "Sofa cổ điển xanh nhạt": 2200000,
   "Sofa cổ điển xám đậm": 13500000,
   "Sofa cổ điển xanh teal": 14000000,
-  "Sofa cổ điển xám nhạt kèm đôn": 15000000,
+  "Sofa cổ điển xám nhạt kèm đôn": 2500000,
 };
 
-// Giá giảm tạm thời (-10% so với giá gốc) — chỉ 3 mẫu này có giảm.
+// Giá giảm (-10% so với giá gốc) — chỉ 3 mẫu này có giảm.
 const TEMP_SALE_PRICES: Record<string, number> = {
-  "Sofa da chữ L nâu đậm": 13500000,
-  "Sofa vải xanh dương chữ L": 11700000,
+  "Sofa da chữ L nâu đậm": 7650000,
+  "Sofa vải xanh dương chữ L": 7650000,
   "Sofa cổ điển xanh teal": 12600000,
 };
 
