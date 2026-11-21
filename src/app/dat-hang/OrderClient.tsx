@@ -24,9 +24,10 @@ type Product = (typeof PRODUCTS)[number];
 // đó), số tiền thanh toán = cọc 50%, giá trị đơn, phí 0đ — KHÔNG có
 // dòng "Nhà cung cấp", và chưa có "Mã đơn hàng" vì đơn chỉ có mã sau
 // khi khách bấm ĐẶT HÀNG; mã QR là ô RIÊNG ở cột phải, cùng hàng
-// grid với hộp Phương thức thanh toán nên đỉnh thẳng nhau — KHÔNG
-// nằm trong khung thanh toán. Nút "Hủy thanh toán" quay lại trang
-// sản phẩm.
+// với hộp Phương thức thanh toán nên đỉnh thẳng nhau — KHÔNG nằm
+// trong khung thanh toán; Tóm tắt đơn hàng nằm ngay dưới mã QR
+// trong cùng cột phải nên không còn khoảng trống thừa. Nút "Hủy
+// thanh toán" quay lại trang sản phẩm.
 // Màu khung QR theo từng phương thức: ngân hàng xanh lá, MoMo hồng,
 // ZaloPay xanh da trời.
 // - Ngân hàng: /images/qr-vietcombank.png là mã QR SẠCH chỉ còn ô
@@ -176,8 +177,8 @@ export default function OrderClient() {
   // hàng" (số tiền thanh toán = cọc 50%, giá trị đơn, phí 0đ —
   // KHÔNG có dòng "Nhà cung cấp", và chưa có "Mã đơn hàng" vì đơn
   // chỉ có mã sau khi khách bấm ĐẶT HÀNG); mã QR là ô RIÊNG ở cột
-  // phải (con trực tiếp của grid, cùng hàng với hộp thanh toán),
-  // KHÔNG nằm trong khung này.
+  // phải (trong container dọc cùng Tóm tắt đơn hàng, cùng hàng với
+  // hộp thanh toán), KHÔNG nằm trong khung này.
   // - Ngân hàng: thẻ VietQR thật của chủ xưởng, đã kiểm tra giải mã
   //   được: Vietcombank (BIN 970436), STK 4943625922.
   // - MoMo: mã QR MoMo thật, đã kiểm tra giải mã được: MoMo (BIN
@@ -267,7 +268,8 @@ export default function OrderClient() {
     );
   }
 
-  // Khung mã QR — ô RIÊNG ở cột phải, là con trực tiếp của grid,
+  // Khung mã QR — ô RIÊNG ở cột phải, nằm trong container dọc
+  // cùng Tóm tắt đơn hàng (tóm tắt ngay dưới mã QR, gap 20px),
   // cùng hàng với hộp Phương thức thanh toán nên đỉnh thẳng nhau
   // (KHÔNG nằm trong khung thanh toán). Hiện khi chọn ngân hàng,
   // MoMo hoặc ZaloPay; VNPay / PayPal chưa có mã QR nên không hiện.
@@ -543,12 +545,8 @@ export default function OrderClient() {
 
             <form onSubmit={handleSubmit} className="mt-6">
               <div className="grid items-start gap-6 lg:grid-cols-[1fr_380px]">
-                {/* Các ô là con trực tiếp của grid, xếp theo thứ tự:
-                    giao hàng, giỏ hàng, giao hàng, khuyến mãi,
-                    thanh toán, mã QR, tóm tắt. Trên desktop, hộp
-                    thanh toán (hàng 3, cột 1) và mã QR (hàng 3,
-                    cột 2) cùng một hàng nên đỉnh thẳng nhau; tóm
-                    tắt dùng lg:col-start-2 để ở lại cột phải. */}
+                {/* Phần trên: giao hàng, giỏ hàng, giao hàng,
+                    khuyến mãi — giữ nguyên thứ tự và bố cục. */}
 
                 {/* Thông tin giao hàng */}
                 <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm sm:p-8">
@@ -759,7 +757,16 @@ export default function OrderClient() {
                     </p>
                   )}
                 </div>
+              </div>
 
+              {/* Phần dưới: 2 cột — trái là hộp Phương thức thanh
+                  toán (toàn bộ, gồm cả "Thông tin đơn hàng" bên
+                  trong), phải là một cột dọc duy nhất chứa mã QR
+                  rồi Tóm tắt đơn hàng ngay bên dưới (gap 20px) để
+                  không còn khoảng trống thừa dưới mã QR. Hai cột
+                  cùng một hàng nên đỉnh thẳng nhau. Trên mobile
+                  xếp dọc: thanh toán → mã QR → tóm tắt. */}
+              <div className="mt-6 grid items-start gap-6 lg:grid-cols-[1.7fr_1fr]">
                 {/* Phương thức thanh toán */}
                 <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm sm:p-8">
                   <h2 className="text-xl font-black text-coffee-deep">
@@ -802,68 +809,70 @@ export default function OrderClient() {
                   <div className="mt-4">{renderPayDetails()}</div>
                 </div>
 
-                {/* Mã QR — ô riêng ở cột phải, cùng hàng với hộp
-                    Phương thức thanh toán (cùng đỉnh hàng grid),
-                    KHÔNG nằm trong khung thanh toán. */}
-                {renderQrPanel()}
+                {/* Cột phải: mã QR + tóm tắt đơn hàng trong một
+                    container dọc duy nhất — tóm tắt nằm ngay dưới
+                    mã QR, không còn khoảng trống thừa. */}
+                <div className="flex flex-col gap-5">
+                  {renderQrPanel()}
 
-                {/* Tóm tắt đơn hàng */}
-                <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm lg:col-start-2">
-                  <h2 className="text-xl font-black text-coffee-deep">
-                    Tóm tắt đơn hàng
-                  </h2>
-                  <div className="mt-4 space-y-2 text-sm">
-                    <div className="flex justify-between gap-4">
-                      <span className="text-coffee-deep/70">
-                        Tổng tiền hàng
-                        {unitPrice && quantity > 1
-                          ? ` (${formatPrice(unitPrice)} × ${quantity})`
-                          : ""}
-                      </span>
-                      <span className="font-bold text-coffee-deep">
-                        {totalPrice
-                          ? formatPrice(totalPrice)
-                          : "Liên hệ báo giá"}
-                      </span>
+                  {/* Tóm tắt đơn hàng */}
+                  <div className="rounded-2xl border border-coffee/10 bg-white p-6 shadow-sm">
+                    <h2 className="text-xl font-black text-coffee-deep">
+                      Tóm tắt đơn hàng
+                    </h2>
+                    <div className="mt-4 space-y-2 text-sm">
+                      <div className="flex justify-between gap-4">
+                        <span className="text-coffee-deep/70">
+                          Tổng tiền hàng
+                          {unitPrice && quantity > 1
+                            ? ` (${formatPrice(unitPrice)} × ${quantity})`
+                            : ""}
+                        </span>
+                        <span className="font-bold text-coffee-deep">
+                          {totalPrice
+                            ? formatPrice(totalPrice)
+                            : "Liên hệ báo giá"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between gap-4">
+                        <span className="text-coffee-deep/70">
+                          Phí vận chuyển
+                        </span>
+                        <span className="font-bold text-coffee-deep">
+                          Liên hệ
+                        </span>
+                      </div>
+                      <div className="mt-3 flex justify-between gap-4 border-t border-coffee/10 pt-3">
+                        <span className="font-bold text-coffee-deep">
+                          Tổng thanh toán
+                        </span>
+                        <span className="text-lg font-black text-coffee">
+                          {totalPrice
+                            ? formatPrice(totalPrice)
+                            : "Liên hệ báo giá"}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex justify-between gap-4">
-                      <span className="text-coffee-deep/70">
-                        Phí vận chuyển
-                      </span>
-                      <span className="font-bold text-coffee-deep">
-                        Liên hệ
-                      </span>
-                    </div>
-                    <div className="mt-3 flex justify-between gap-4 border-t border-coffee/10 pt-3">
-                      <span className="font-bold text-coffee-deep">
-                        Tổng thanh toán
-                      </span>
-                      <span className="text-lg font-black text-coffee">
-                        {totalPrice
-                          ? formatPrice(totalPrice)
-                          : "Liên hệ báo giá"}
-                      </span>
-                    </div>
-                  </div>
-                  {error && (
-                    <p
-                      role="alert"
-                      className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
+                    {error && (
+                      <p
+                        role="alert"
+                        className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
+                      >
+                        {error}
+                      </p>
+                    )}
+                    <button
+                      type="submit"
+                      disabled={!canSubmit || sending}
+                      className="mt-5 w-full rounded-full bg-[#241208] py-3.5 text-base font-bold text-white shadow transition hover:bg-coffee-dark disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {error}
+                      {sending ? "Đang gửi…" : "ĐẶT HÀNG"}
+                    </button>
+                    <p className="mt-3 text-center text-sm text-coffee-deep/60">
+                      Xưởng sẽ gọi lại tư vấn và xác nhận đơn hàng trước khi
+                      bạn thanh toán.
                     </p>
-                  )}
-                  <button
-                    type="submit"
-                    disabled={!canSubmit || sending}
-                    className="mt-5 w-full rounded-full bg-[#241208] py-3.5 text-base font-bold text-white shadow transition hover:bg-coffee-dark disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {sending ? "Đang gửi…" : "ĐẶT HÀNG"}
-                  </button>
-                  <p className="mt-3 text-center text-sm text-coffee-deep/60">
-                    Xưởng sẽ gọi lại tư vấn và xác nhận đơn hàng trước khi
-                    bạn thanh toán.
-                  </p>
+                  </div>
                 </div>
               </div>
             </form>
