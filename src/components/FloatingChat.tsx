@@ -27,18 +27,23 @@ export default function FloatingChat() {
   const endRef = useRef<HTMLDivElement>(null);
 
   // Nạp email đã lưu + các đoạn chat của email đó (từ API MySQL).
+  // Chỉ đặt view "list" 1 lần lúc mở trang (nếu đã có đoạn chat);
+  // các lần làm mới sau đó KHÔNG được đổi view, để khách đang nhắn
+  // trong 1 đoạn chat không bị bật ngược về danh sách.
   useEffect(() => {
     const savedEmail =
       window.localStorage.getItem(CHAT_EMAIL_KEY) || "";
     if (savedEmail) setEmail(savedEmail);
-    void refreshThreads(savedEmail);
+    void refreshThreads(savedEmail).then((mine) => {
+      if (savedEmail && mine.length > 0) setView("list");
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Chỉ cập nhật dữ liệu đoạn chat, KHÔNG đổi view.
   async function refreshThreads(forEmail?: string): Promise<ChatThread[]> {
     const mine = await loadThreads(forEmail);
     setThreads(mine);
-    if (forEmail && mine.length > 0) setView("list");
     return mine;
   }
 
