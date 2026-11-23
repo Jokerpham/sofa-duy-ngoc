@@ -8,8 +8,8 @@ import { usePathname } from "next/navigation";
 // position: fixed ở góc dưới bên phải (phía trên nút chat xanh), luôn nằm
 // yên trong khung nhìn khi cuộn trang. Chỉ hiện khi đã cuộn xuống ~300px.
 // Không hiện trên các trang /admin.
-// Cỡ nút 56×56 (h-14 w-14), chung với nút chat, nút Messenger và nút
-// Facebook; 4 nút xếp thành 1 cột dọc với khoảng cách đều nhau 16px.
+// Cỡ nút 56×56 (h-14 w-14), chung với nút chat, nút Messenger, nút
+// Facebook và nút Zalo; 5 nút xếp thành 1 cột dọc với khoảng cách đều nhau 16px.
 export default function ScrollTop() {
   const pathname = usePathname();
   const [show, setShow] = useState(false);

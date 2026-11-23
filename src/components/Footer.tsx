@@ -299,11 +299,22 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Nút Messenger + Facebook nổi — thay nút Zalo cũ, cùng cỡ 56×56,
-          xếp 1 cột dọc với nút chat và nút cuộn đầu trang, khoảng cách đều
-          16px. Messenger ở dưới cùng, Facebook ở trên nó. Không hiện ở /admin. */}
+      {/* Nút nổi: Zalo + Messenger + Facebook — cùng cỡ 56×56, xếp 1 cột
+          dọc với nút chat và nút cuộn đầu trang, khoảng cách đều 16px.
+          Từ dưới lên: Messenger, Facebook, chat, cuộn đầu trang, Zalo
+          ở trên cùng. Không hiện ở /admin. */}
       {!isAdmin && (
         <>
+          <a
+            href={SITE.zaloUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Nhắn Zalo cho Sofa Duy Ngọc"
+            title="Nhắn Zalo"
+            className="fixed bottom-[312px] right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#0068FF] text-white shadow-xl transition hover:scale-105"
+          >
+            <span className="text-[28px] font-black leading-none">Z</span>
+          </a>
           <a
             href={SITE.messengerUrl}
             target="_blank"
