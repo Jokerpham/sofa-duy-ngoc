@@ -108,12 +108,12 @@ export default function FloatingChat() {
   return (
     <>
       {/* Nút chat tròn màu xanh — nằm trên nút Facebook, dưới nút cuộn đầu trang.
-          Cỡ 56×56 (h-14 w-14), chung với 3 nút nổi còn lại, khoảng cách đều 16px. */}
+          Cỡ 56×56 (h-14 w-14), chung với 4 nút nổi còn lại, khoảng cách đều 16px. */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? "Đóng khung trò chuyện" : "Trò chuyện với Sofa Duy Ngọc"}
-        className="fixed bottom-[168px] right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl transition hover:scale-105 hover:bg-[#1EB856]"
+        className="fixed bottom-60 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl transition hover:scale-105 hover:bg-[#1EB856]"
       >
         {open ? (
           <svg
@@ -139,7 +139,7 @@ export default function FloatingChat() {
       </button>
 
       {open && (
-        <div className="fixed bottom-[224px] right-6 z-50 flex h-[480px] w-[340px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-[#EADBC6] bg-white shadow-2xl max-h-[calc(100vh-180px)]">
+        <div className="fixed bottom-[296px] right-6 z-50 flex h-[480px] w-[340px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-[#EADBC6] bg-white shadow-2xl max-h-[calc(100vh-180px)]">
           {/* Đầu khung chat */}
           <div className="flex items-center justify-between bg-[#241208] px-4 py-3">
             <div>

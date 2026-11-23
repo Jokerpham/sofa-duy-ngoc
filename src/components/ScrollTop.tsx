@@ -29,7 +29,7 @@ export default function ScrollTop() {
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       aria-label="Cuộn về đầu trang"
       title="Về đầu trang"
-      className={`fixed bottom-60 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#241208] text-[#FFD9A0] shadow-xl transition-all duration-300 hover:scale-105 hover:bg-[#4A2718] ${
+      className={`fixed bottom-[312px] right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#241208] text-[#FFD9A0] shadow-xl transition-all duration-300 hover:scale-105 hover:bg-[#4A2718] ${
         show ? "opacity-100" : "pointer-events-none opacity-0"
       }`}
     >

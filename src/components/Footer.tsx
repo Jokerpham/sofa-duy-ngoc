@@ -301,8 +301,8 @@ export default function Footer() {
 
       {/* Nút nổi: Zalo + Messenger + Facebook — cùng cỡ 56×56, xếp 1 cột
           dọc với nút chat và nút cuộn đầu trang, khoảng cách đều 16px.
-          Từ dưới lên: Messenger, Facebook, chat, cuộn đầu trang, Zalo
-          ở trên cùng. Không hiện ở /admin. */}
+          Từ trên xuống: cuộn đầu trang, chat, Facebook, Messenger, Zalo
+          ở dưới cùng. Không hiện ở /admin. */}
       {!isAdmin && (
         <>
           <a
@@ -311,7 +311,7 @@ export default function Footer() {
             rel="noopener noreferrer"
             aria-label="Nhắn Zalo cho Sofa Duy Ngọc"
             title="Nhắn Zalo"
-            className="fixed bottom-[312px] right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#0068FF] text-white shadow-xl transition hover:scale-105"
+            className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#0068FF] text-white shadow-xl transition hover:scale-105"
           >
             <span className="text-[28px] font-black leading-none">Z</span>
           </a>
@@ -321,7 +321,7 @@ export default function Footer() {
             rel="noopener noreferrer"
             aria-label="Nhắn Messenger cho Sofa Duy Ngọc"
             title="Nhắn Messenger"
-            className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#00C6FF] to-[#0078FF] text-white shadow-xl transition hover:scale-105"
+            className="fixed bottom-24 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#00C6FF] to-[#0078FF] text-white shadow-xl transition hover:scale-105"
           >
             <svg
               className="h-7 w-7"
@@ -345,7 +345,7 @@ export default function Footer() {
             rel="noopener noreferrer"
             aria-label="Facebook của Sofa Duy Ngọc"
             title="Facebook"
-            className="fixed bottom-24 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#1877F2] text-white shadow-xl transition hover:scale-105"
+            className="fixed bottom-[168px] right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#1877F2] text-white shadow-xl transition hover:scale-105"
           >
             <span className="text-[30px] font-black leading-none">f</span>
           </a>
